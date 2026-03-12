@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<FodanArtistryDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("FodanArtistry.Infrastructure")));
+        b => b.MigrationsAssembly("FodanArtistry.Web")));
 
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
