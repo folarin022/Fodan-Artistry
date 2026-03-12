@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FodanArtistry.Application/FodanArtistry.Application.csproj" />
+  <Project Path="FodanArtistry.Domain/FodanArtistry.Domain.csproj" />
+  <Project Path="FodanArtistry.Infrastructure/FodanArtistry.Infrastructure.csproj" />
+  <Project Path="FodanArtistry.Web/FodanArtistry.Web.csproj" />
+</Solution>
