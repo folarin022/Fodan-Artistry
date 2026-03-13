@@ -1,25 +1,53 @@
-using FodanArtistry.Web.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using FodanArtistry.Application.Interfaces;
+using FodanArtistry.Application.DTOs.ArtworkModel;
 
 namespace FodanArtistry.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IArtworkService _artworkService;
+        private readonly ICategoryService _categoryService;
+
+        public HomeController(
+            IArtworkService artworkService,
+            ICategoryService categoryService)
+        {
+            _artworkService = artworkService;
+            _categoryService = categoryService;
+        }
+
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        {
+            // Get featured artworks (latest 6)
+            var featured = await _artworkService.GetGalleryAsync(
+                pageNumber: 1,
+                pageSize: 6,
+                cancellationToken: cancellationToken);
+
+            // Get categories for navigation
+            var categories = await _categoryService.GetAllCategoriesAsync(cancellationToken);
+
+            ViewBag.Categories = categories;
+            return View(featured.Items);
+        }
+
+        public IActionResult About()
         {
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Contact()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Contact(string name, string email, string message)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // Handle contact form submission
+            TempData["SuccessMessage"] = "Thank you for contacting us! We'll get back to you soon.";
+            return RedirectToAction("Contact");
         }
     }
 }

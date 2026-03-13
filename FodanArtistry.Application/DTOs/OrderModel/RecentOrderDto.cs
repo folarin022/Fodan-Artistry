@@ -16,5 +16,6 @@ namespace FodanArtistry.Application.DTOs.OrderModel
         public string OrderStatus { get; set; } = string.Empty;
         public string StatusColor { get; set; } = string.Empty;
         public List<string> ArtworkTitles { get; set; } = new();
+        public string CustomerEmail { get; internal set; }
     }
 }

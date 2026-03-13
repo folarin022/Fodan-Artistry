@@ -1,0 +1,139 @@
+﻿@model FodanArtistry.Application.DTOs.PagedResult<FodanArtistry.Application.DTOs.ArtworkModel.ArtworkDto>
+
+@{
+    ViewData["Title"] = "Gallery - Fodan Artistry";
+}
+
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Artwork Gallery</h2>
+            <p class="text-muted">Discover amazing artworks from our talented artists</p>
+        </div>
+        <div class="col-md-4 text-end">
+            @if (User.IsInRole("Artist"))
+            {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Upload Artwork
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <select class="form-select" id="categoryFilter" onchange="filterByCategory()">
+                <option value="">All Categories</option>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.Name" selected="@(ViewBag.CurrentCategory == category.Name)">
+                        @category.Name
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search artworks..." value="@ViewBag.CurrentSearch">
+                <button class="btn btn-outline-secondary" type="button" onclick="searchArtworks()">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                <i class="bi bi-x-circle"></i> Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- Artworks Grid -->
+    @if (!Model.Items.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-images display-1 text-muted"></i>
+            <h4 class="mt-3">No artworks found</h4>
+            <p class="text-muted">Try adjusting your filters or check back later</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var artwork in Model.Items)
+            {
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@artwork.ImageUrl" class="card-img-top" alt="@artwork.Title" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@artwork.Title</h5>
+                            <p class="card-text text-muted">by @artwork.ArtistName</p>
+                            <p class="card-text">@artwork.CategoryName</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0">@artwork.Price.ToString("C")</span>
+                                <span class="badge bg-@(artwork.IsAvailable ? "success" : "danger")">
+                                    @(artwork.IsAvailable ? "Available" : "Sold")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a asp-action="Details" asp-route-id="@artwork.Id" class="btn btn-outline-primary w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" href="javascript:void(0)" onclick="goToPage(@(Model.PageNumber - 1))">Previous</a>
+                    </li>
+                    
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" href="javascript:void(0)" onclick="goToPage(@i)">@i</a>
+                        </li>
+                    }
+                    
+                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" href="javascript:void(0)" onclick="goToPage(@(Model.PageNumber + 1))">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function filterByCategory() {
+            var category = document.getElementById('categoryFilter').value;
+            var search = document.getElementById('searchInput').value;
+            window.location.href = '@Url.Action("Gallery")?page=1&category=' + encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
+        }
+
+        function searchArtworks() {
+            var category = document.getElementById('categoryFilter').value;
+            var search = document.getElementById('searchInput').value;
+            window.location.href = '@Url.Action("Gallery")?page=1&category=' + encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
+        }
+
+        function clearFilters() {
+            window.location.href = '@Url.Action("Gallery")';
+        }
+
+        function goToPage(page) {
+            var category = '@ViewBag.CurrentCategory';
+            var search = '@ViewBag.CurrentSearch';
+            window.location.href = '@Url.Action("Gallery")?page=' + page + '&category=' + encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
+        }
+    </script>
+}

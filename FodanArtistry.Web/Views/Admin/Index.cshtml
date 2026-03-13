@@ -1,0 +1,126 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard - Fodan Artistry";
+    var recentOrders = ViewBag.RecentOrders as IEnumerable<FodanArtistry.Application.DTOs.OrderModel.RecentOrderDto>;
+    var orderSummary = ViewBag.OrderSummary as FodanArtistry.Application.Services.DashboardOrderSummaryDto;
+    var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryWithCountDto>;
+}
+
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Users</h6>
+                    <h2 class="mb-0">@ViewBag.TotalUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Artworks</h6>
+                    <h2 class="mb-0">@ViewBag.TotalArtworks</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Today's Orders</h6>
+                    <h2 class="mb-0">@orderSummary?.TodayCount</h2>
+                    <small>@orderSummary?.TodayRevenue.ToString("C")</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Pending Orders</h6>
+                    <h2 class="mb-0">@orderSummary?.PendingCount</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Orders</h5>
+                    <a asp-action="Orders" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in recentOrders ?? Enumerable.Empty<FodanArtistry.Application.DTOs.OrderModel.RecentOrderDto>())
+                                {
+                                    <tr>
+                                        <td>@order.OrderNumber</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>@order.ItemCount</td>
+                                        <td>@order.TotalAmount.ToString("C")</td>
+                                        <td><span class="badge bg-@order.StatusColor">@order.OrderStatus</span></td>
+                                        <td>@order.TimeAgo</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Categories</h5>
+                    <a asp-action="Categories" class="btn btn-sm btn-primary">Manage</a>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var category in categories ?? Enumerable.Empty<FodanArtistry.Application.DTOs.CategoryModel.CategoryWithCountDto>())
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @category.Name
+                                <span class="badge bg-primary rounded-pill">@category.ArtworkCount</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a asp-action="Categories" class="btn btn-outline-primary me-2">Manage Categories</a>
+                    <a asp-action="Users" class="btn btn-outline-primary me-2">Manage Users</a>
+                    <a asp-action="Orders" class="btn btn-outline-primary me-2">View All Orders</a>
+                    <a asp-controller="Artwork" asp-action="Create" class="btn btn-outline-success">Add Artwork</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

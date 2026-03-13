@@ -1,0 +1,95 @@
+﻿@model FodanArtistry.Application.DTOs.AccountModel.UserProfileDto
+@{
+    ViewData["Title"] = "My Profile - Fodan Artistry";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                        {
+                            <img src="@Model.ProfilePicture" class="rounded-circle" width="150" height="150" alt="Profile">
+                        }
+                        else
+                        {
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width: 150px; height: 150px; font-size: 3rem;">
+                                @Model.FirstName?.Substring(0, 1)@Model.LastName?.Substring(0, 1)
+                            </div>
+                        }
+                    </div>
+                    <h4>@Model.FirstName @Model.LastName</h4>
+                    <p class="text-muted">@Model.Email</p>
+                    <p class="text-muted">@Model.PhoneNumber</p>
+                    <p>Member since @Model.DateJoined?.ToString("MMMM yyyy")</p>
+
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <h6>Favorites</h6>
+                            <p>@Model.FavoriteCount</p>
+                        </div>
+                        <div class="col-6">
+                            <h6>Orders</h6>
+                            <p>@Model.OrderCount</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Edit Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateProfile" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="FirstName" class="form-control" value="@Model.FirstName" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="LastName" class="form-control" value="@Model.LastName" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" name="PhoneNumber" class="form-control" value="@Model.PhoneNumber" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ChangePassword" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="CurrentPassword" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="NewPassword" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" name="ConfirmNewPassword" class="form-control" required />
+                        </div>
+                        <button type="submit" class="btn btn-warning">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

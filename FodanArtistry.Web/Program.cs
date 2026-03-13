@@ -1,4 +1,5 @@
 using FodanArtistry.Application.Interfaces;
+using FodanArtistry.Application.Services;
 using FodanArtistry.Domain.Data;
 using FodanArtistry.Infrastructure.Context;
 using FodanArtistry.Infrastructure.Repositories;
@@ -29,9 +30,15 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 
 builder.Services.AddScoped<FodanArtistryDbContext>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IFavoriteRepository, FavouriteRepository>();
 builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IArtworkService, ArtworkService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IFavouriteService, FavouriteService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 
 // Add services to the container.
@@ -56,7 +63,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Account}/{action=Login}/{id?}")
     .WithStaticAssets();
 
 

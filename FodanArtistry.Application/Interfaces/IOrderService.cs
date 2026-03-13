@@ -1,4 +1,5 @@
 ﻿using FodanArtistry.Application.DTOs.OrderModel;
+using FodanArtistry.Application.Services;
 using FodanArtistry.Domain.Data;
 
 namespace FodanArtistry.Application.Interfaces
@@ -13,5 +14,6 @@ namespace FodanArtistry.Application.Interfaces
         Task<bool> CancelOrderAsync(Guid id, CancellationToken cancellationToken = default);
 
         Task<IEnumerable<RecentOrderDto>> GetRecentOrdersAsync(int count = 10, CancellationToken cancellationToken = default);
+        Task<DashboardOrderSummaryDto> GetOrderSummaryAsync(CancellationToken cancellationToken);
     }
 }

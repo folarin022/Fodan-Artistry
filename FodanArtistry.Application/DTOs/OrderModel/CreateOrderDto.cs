@@ -9,7 +9,9 @@ namespace FodanArtistry.Application.DTOs.OrderModel
         public string CustomerEmail { get; set; } = string.Empty;
         public string? ShippingAddress { get; set; }
         public string? PhoneNumber { get; set; }
-        public List<OrderDto> OrderItems { get; set; } = new();
+        public List<OrderItemDto> OrderItems { get; set; } = new();
+
+        
     }
     
 }

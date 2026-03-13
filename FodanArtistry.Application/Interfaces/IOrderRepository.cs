@@ -18,5 +18,6 @@ namespace FodanArtistry.Application.Interfaces
         Task<Order?> GetOrderWithItemsAsync(Guid id, CancellationToken cancellationToken = default);
         Task<decimal> GetTotalSalesAsync(DateTime start, DateTime end, CancellationToken cancellationToken = default);
         Task<int> GetOrderCountAsync(DateTime start, DateTime end, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Order>> GetRecentOrdersAsync(int count, CancellationToken cancellationToken);
     }
 }

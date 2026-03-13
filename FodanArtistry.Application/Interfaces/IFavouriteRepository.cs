@@ -14,5 +14,6 @@ namespace FodanArtistry.Application.Interfaces
         Task<bool> IsFavoritedAsync(string userId, Guid artworkId, CancellationToken cancellationToken = default);
         Task<int> GetFavoriteCountAsync(Guid artworkId, CancellationToken cancellationToken = default);
         Task<IEnumerable<Artwork>> GetUserFavoriteArtworksAsync(string userId, CancellationToken cancellationToken = default);
+        Task<bool> DeleteUserFavoriteAsync(string userId, Guid artworkId, CancellationToken cancellationToken = default);
     }
 }

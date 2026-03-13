@@ -1,8 +1,65 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<FodanArtistry.Application.DTOs.ArtworkModel.ArtworkDto>
+
+@{
+    ViewData["Title"] = "Home - Fodan Artistry";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section text-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <h1 class="display-4 text-white mb-4">Welcome to Fodan Artistry</h1>
+        <p class="lead text-white mb-5">Discover unique artworks from talented artists around the world</p>
+        <a asp-controller="Artwork" asp-action="Gallery" class="btn btn-light btn-lg px-5">Explore Gallery</a>
+    </div>
+</section>
+
+<!-- Featured Artworks -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Artworks</h2>
+        <div class="row">
+            @foreach (var artwork in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@artwork.ImageUrl" class="card-img-top" alt="@artwork.Title" style="height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@artwork.Title</h5>
+                            <p class="card-text text-muted">by @artwork.ArtistName</p>
+                            <p class="card-text">@artwork.Description.Substring(0, Math.Min(100, artwork.Description.Length))...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0">@artwork.Price.ToString("C")</span>
+                                <a asp-controller="Artwork" asp-action="Details" asp-route-id="@artwork.Id" class="btn btn-outline-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="text-center mt-4">
+            <a asp-controller="Artwork" asp-action="Gallery" class="btn btn-primary btn-lg">View All Artworks</a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Browse by Category</h2>
+        <div class="row">
+            @{
+                var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>
+                                ?? new List<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>();
+            }
+            @foreach (var category in categories)
+            {
+                <div class="col-md-3 mb-3">
+                    <a asp-controller="Artwork" asp-action="Gallery" asp-route-category="@category.Name"
+                           class="btn btn-outline-secondary w-100 py-3">
+                        @category.Name
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>

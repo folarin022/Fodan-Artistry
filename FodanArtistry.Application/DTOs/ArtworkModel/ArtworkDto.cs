@@ -22,5 +22,6 @@ namespace FodanArtistry.Application.DTOs.ArtworkModel
         public string CategoryName { get; set; } = string.Empty;
 
         public int FavoriteCount { get; set; }
+        public string ArtistProfilePicture { get; internal set; }
     }
 }

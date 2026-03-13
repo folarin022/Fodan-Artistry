@@ -1,0 +1,141 @@
+﻿@model FodanArtistry.Application.DTOs.ArtworkModel.ArtworkDto
+@{
+    ViewData["Title"] = $"{Model.Title} - Fodan Artistry";
+    var isFavorited = ViewBag.IsFavorited ?? false;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Gallery">Gallery</a></li>
+            <li class="breadcrumb-item active">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Artwork Image -->
+        <div class="col-md-6 mb-4">
+            <img src="@Model.ImageUrl" class="img-fluid rounded shadow" alt="@Model.Title">
+        </div>
+
+        <!-- Artwork Details -->
+        <div class="col-md-6">
+            <h1 class="display-5">@Model.Title</h1>
+            <p class="lead">by <a asp-action="Artist" asp-route-artistId="@Model.ArtistId">@Model.ArtistName</a></p>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary">@Model.CategoryName</span>
+                <span class="badge bg-@(Model.IsAvailable ? "success" : "danger") ms-2">
+                    @(Model.IsAvailable ? "Available" : "Sold")
+                </span>
+            </div>
+
+            <h2 class="text-primary mb-4">@Model.Price.ToString("C")</h2>
+
+            <div class="mb-4">
+                <h5>Description</h5>
+                <p class="text-muted">@Model.Description</p>
+            </div>
+
+            <div class="mb-4">
+                <h5>Details</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Created:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy")</li>
+                    <li><strong>Artist:</strong> @Model.ArtistName</li>
+                    <li><strong>Category:</strong> @Model.CategoryName</li>
+                    <li><strong>Favorites:</strong> <span id="favoriteCount">@Model.FavoriteCount</span></li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
+                @if (Model.IsAvailable)
+                {
+                    <a asp-controller="Order" asp-action="Checkout" asp-route-artworkId="@Model.Id"
+                           class="btn btn-primary btn-lg flex-grow-1">
+                        <i class="bi bi-cart"></i> Buy Now
+                    </a>
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <button id="favoriteBtn" class="btn btn-outline-danger btn-lg" onclick="toggleFavorite()">
+                        <i class="bi bi-heart@(isFavorited ? "-fill" : "")"></i>
+                    </button>
+                }
+
+                @if (User.IsInRole("Admin") || (User.IsInRole("Artist") && Model.ArtistId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning btn-lg">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-lg" onclick="confirmDelete()">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Artworks -->
+    @if (ViewBag.RelatedArtworks != null && ViewBag.RelatedArtworks.Any())
+    {
+        <section class="mt-5">
+            <h3 class="mb-4">Related Artworks</h3>
+            <div class="row">
+                @foreach (var related in ViewBag.RelatedArtworks)
+                {
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <img src="@related.ImageUrl" class="card-img-top" alt="@related.Title" style="height: 150px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title">@related.Title</h6>
+                                <p class="card-text small">@related.Price.ToString("C")</p>
+                                <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-primary w-100">View</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</div>
+
+<!-- Delete Form (Hidden) -->
+<form id="deleteForm" asp-action="Delete" method="post" style="display: none;">
+    <input type="hidden" name="id" value="@Model.Id" />
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        function toggleFavorite() {
+            $.ajax({
+                url: '@Url.Action("ToggleFavorite", "Artwork")',
+                type: 'POST',
+                data: { artworkId: '@Model.Id' },
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        var icon = $('#favoriteBtn i');
+                        if (response.isFavorited) {
+                            icon.removeClass('bi-heart').addClass('bi-heart-fill');
+                        } else {
+                            icon.removeClass('bi-heart-fill').addClass('bi-heart');
+                        }
+                        $('#favoriteCount').text(response.favoriteCount);
+                    }
+                }
+            });
+        }
+
+        function confirmDelete() {
+            if (confirm('Are you sure you want to delete this artwork?')) {
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+}

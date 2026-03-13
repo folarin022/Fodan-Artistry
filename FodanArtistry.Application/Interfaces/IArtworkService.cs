@@ -1,4 +1,5 @@
-﻿using FodanArtistry.Application.DTOs.ArtworkDto;
+﻿using FodanArtistry.Application.DTOs;
+using FodanArtistry.Application.DTOs.ArtworkDto;
 using FodanArtistry.Application.DTOs.ArtworkModel;
 
 namespace FodanArtistry.Application.Interfaces

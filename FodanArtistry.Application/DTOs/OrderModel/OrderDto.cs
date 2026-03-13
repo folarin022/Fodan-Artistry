@@ -10,5 +10,16 @@ namespace FodanArtistry.Application.DTOs.OrderModel
         public string ArtworkTitle { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; } = 1;
+        public Guid Id { get; internal set; }
+        public string OrderNumber { get; internal set; }
+        public string CustomerName { get; internal set; }
+        public string CustomerEmail { get; internal set; }
+        public object CustomerPhone { get; internal set; }
+        public object ShippingAddress { get; internal set; }
+        public DateTime OrderDate { get; internal set; }
+        public decimal TotalAmount { get; internal set; }
+        public string Status { get; internal set; }
+        public List<OrderItemDto> Items { get; internal set; }
+        public int ItemCount { get; internal set; }
     }
 }
