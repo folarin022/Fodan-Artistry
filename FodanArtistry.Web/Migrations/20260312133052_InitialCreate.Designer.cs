@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FodanArtistry.Web.Migrations
 {
     [DbContext(typeof(FodanArtistryDbContext))]
-    [Migration("20260312112321_AddColumn")]
-    partial class AddColumn
+    [Migration("20260312133052_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
