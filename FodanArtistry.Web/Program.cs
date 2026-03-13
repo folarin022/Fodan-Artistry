@@ -1,5 +1,8 @@
+using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using FodanArtistry.Infrastructure.Context;
+using FodanArtistry.Infrastructure.Repositories;
+using FodanArtistry.Infrastructure.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +26,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
     .AddRoles<IdentityRole>()  // If you want roles
     .AddEntityFrameworkStores<FodanArtistryDbContext>();
+
+builder.Services.AddScoped<FodanArtistryDbContext>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IFavoriteRepository, FavouriteRepository>();
+builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
 // Add services to the container.
