@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FodanArtistry.Application.DTOs.OrderModel;
+using FodanArtistry.Application.Interfaces;
+using FodanArtistry.Domain.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using FodanArtistry.Application.Interfaces;
-using FodanArtistry.Application.DTOs.OrderModel;
 
 namespace FodanArtistry.Web.Controllers
 {
@@ -10,11 +12,13 @@ namespace FodanArtistry.Web.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IArtworkService _artworkService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OrderController(IOrderService orderService, IArtworkService artworkService)
+        public OrderController(IOrderService orderService, IArtworkService artworkService, UserManager<ApplicationUser> userManager)
         {
             _orderService = orderService;
             _artworkService = artworkService;
+            _userManager = userManager;
         }
 
         [Authorize]
@@ -36,7 +40,9 @@ namespace FodanArtistry.Web.Controllers
 
             var dto = new CreateOrderDto
             {
-                OrderItems = orderItems
+                OrderItems = orderItems,
+                CustomerName = User.Identity?.Name ?? "",
+                CustomerEmail = (await _userManager.GetUserAsync(User))?.Email ?? ""
             };
 
             return View(dto);
@@ -47,13 +53,23 @@ namespace FodanArtistry.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(CreateOrderDto dto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid) return View(dto);
+            if (dto.OrderItems == null || !dto.OrderItems.Any())
+            {
+                ModelState.AddModelError("", "Order must contain at least one item");
+                return View(dto);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
 
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var order = await _orderService.CreateOrderAsync(dto, userId, cancellationToken);
-                TempData["SuccessMessage"] = $"Order #{order.OrderNumber} created!";
+
+                TempData["SuccessMessage"] = $"Order #{order.OrderNumber} created successfully!";
                 return RedirectToAction(nameof(Details), new { id = order.Id });
             }
             catch (Exception ex)

@@ -78,16 +78,17 @@ namespace FodanArtistry.Application.Services
 
         public async Task<ArtworkDto> CreateArtworkAsync(CreateArtworkDto dto, string artistId, CancellationToken cancellationToken = default)
         {
-            var category = await _categoryRepository.GetByIdAsync(dto.CategoryId, cancellationToken);
-            if (category == null)
-                throw new InvalidOperationException($"Category with ID {dto.CategoryId} does not exist");
+            if (string.IsNullOrEmpty(dto.ImageUrl))
+            {
+                throw new InvalidOperationException("Image URL is required");
+            }
 
             var artwork = new Artwork
             {
                 Id = Guid.NewGuid(),
                 Title = dto.Title,
                 Description = dto.Description,
-                ImageUrl = dto.ImageUrl,
+                ImageUrl = dto.ImageUrl, 
                 Price = dto.Price,
                 IsAvailable = true,
                 CreatedAt = DateTime.UtcNow,

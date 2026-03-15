@@ -26,7 +26,12 @@ namespace FodanArtistry.Web.Controllers
         public async Task<IActionResult> Gallery(int page = 1, string? category = null, string? search = null, CancellationToken cancellationToken = default)
         {
             var artworks = await _artworkService.GetGalleryAsync(page, 12, category, search, cancellationToken);
-            ViewBag.Categories = await _categoryService.GetAllCategoriesAsync(cancellationToken);
+            var categories = await _categoryService.GetAllCategoriesAsync(cancellationToken);
+
+            ViewBag.Categories = categories; 
+            ViewBag.CurrentCategory = category;
+            ViewBag.CurrentSearch = search;
+
             return View(artworks);
         }
 
@@ -53,7 +58,8 @@ namespace FodanArtistry.Web.Controllers
             return View(artworks);
         }
 
-        [Authorize(Roles = "Artist")]
+        [HttpGet]
+        [Authorize(Roles = "Artist,Admin")]
         public async Task<IActionResult> Create(CancellationToken cancellationToken)
         {
             ViewBag.Categories = await _categoryService.GetAllCategoriesAsync(cancellationToken);
@@ -61,7 +67,7 @@ namespace FodanArtistry.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Artist")]
+        [Authorize(Roles = "Artist,Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateArtworkDto dto, IFormFile? imageFile, CancellationToken cancellationToken)
         {
@@ -73,6 +79,33 @@ namespace FodanArtistry.Web.Controllers
 
             try
             {
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(stream, cancellationToken);
+                    }
+
+                    dto.ImageUrl = "/uploads/" + fileName;
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Please select an image");
+                    ViewBag.Categories = await _categoryService.GetAllCategoriesAsync(cancellationToken);
+                    return View(dto);
+                }
+
                 var artistId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
                 var artwork = await _artworkService.CreateArtworkAsync(dto, artistId, cancellationToken);
 

@@ -16,7 +16,7 @@
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-        public object PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
     }
 
     // Order status enum

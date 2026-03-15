@@ -1,62 +1,113 @@
 ﻿@{
     ViewData["Title"] = "Admin Dashboard - Fodan Artistry";
-    var recentOrders = ViewBag.RecentOrders as IEnumerable<FodanArtistry.Application.DTOs.OrderModel.RecentOrderDto>;
+    var recentOrders = ViewBag.RecentOrders as IEnumerable<FodanArtistry.Application.DTOs.OrderModel.RecentOrderDto>
+                       ?? new List<FodanArtistry.Application.DTOs.OrderModel.RecentOrderDto>();
     var orderSummary = ViewBag.OrderSummary as FodanArtistry.Application.Services.DashboardOrderSummaryDto;
-    var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryWithCountDto>;
+    var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryWithCountDto>
+                     ?? new List<FodanArtistry.Application.DTOs.CategoryModel.CategoryWithCountDto>();
 }
 
 <div class="container-fluid py-4">
-    <h2 class="mb-4">Admin Dashboard</h2>
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="display-6 fw-bold">Welcome back, Admin</h2>
+            <p class="text-muted">Here's what's happening with your gallery today.</p>
+        </div>
+    </div>
 
     <!-- Stats Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card bg-primary text-white">
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-lg hover-lift">
                 <div class="card-body">
-                    <h6 class="card-title">Total Users</h6>
-                    <h2 class="mb-0">@ViewBag.TotalUsers</h2>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3">
+                                <i class="bi bi-people fs-2"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Users</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.TotalUsers</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-success text-white">
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-lg hover-lift">
                 <div class="card-body">
-                    <h6 class="card-title">Total Artworks</h6>
-                    <h2 class="mb-0">@ViewBag.TotalArtworks</h2>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle p-3">
+                                <i class="bi bi-palette fs-2"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Artworks</h6>
+                            <h3 class="fw-bold mb-0">@ViewBag.TotalArtworks</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-info text-white">
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-lg hover-lift">
                 <div class="card-body">
-                    <h6 class="card-title">Today's Orders</h6>
-                    <h2 class="mb-0">@orderSummary?.TodayCount</h2>
-                    <small>@orderSummary?.TodayRevenue.ToString("C")</small>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-info bg-opacity-10 text-info rounded-circle p-3">
+                                <i class="bi bi-cart fs-2"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Today's Orders</h6>
+                            <h3 class="fw-bold mb-0">@orderSummary?.TodayCount</h3>
+                            <small class="text-success">@orderSummary?.TodayRevenue.ToString("C")</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-warning text-white">
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-lg hover-lift">
                 <div class="card-body">
-                    <h6 class="card-title">Pending Orders</h6>
-                    <h2 class="mb-0">@orderSummary?.PendingCount</h2>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3">
+                                <i class="bi bi-hourglass-split fs-2"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Pending Orders</h6>
+                            <h3 class="fw-bold mb-0">@orderSummary?.PendingCount</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Orders -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Orders</h5>
-                    <a asp-action="Orders" class="btn btn-sm btn-primary">View All</a>
+    <div class="row g-4">
+        <!-- Recent Orders -->
+        <div class="col-xl-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Recent Orders</h5>
+                        <a asp-action="Orders" class="btn btn-sm btn-primary rounded-pill px-4">
+                            View All <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="bg-light">
                                 <tr>
                                     <th>Order #</th>
                                     <th>Customer</th>
@@ -67,15 +118,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var order in recentOrders ?? Enumerable.Empty<FodanArtistry.Application.DTOs.OrderModel.RecentOrderDto>())
+                                @foreach (var order in recentOrders.Take(5))
                                 {
                                     <tr>
-                                        <td>@order.OrderNumber</td>
-                                        <td>@order.CustomerName</td>
+                                        <td><span class="fw-semibold">@order.OrderNumber</span></td>
+                                        <td>
+                                            <div>
+                                                <div class="fw-semibold">@order.CustomerName</div>
+                                                <small class="text-muted">@order.CustomerEmail</small>
+                                            </div>
+                                        </td>
                                         <td>@order.ItemCount</td>
-                                        <td>@order.TotalAmount.ToString("C")</td>
-                                        <td><span class="badge bg-@order.StatusColor">@order.OrderStatus</span></td>
-                                        <td>@order.TimeAgo</td>
+                                        <td class="fw-bold text-primary">@order.TotalAmount.ToString("C")</td>
+                                        <td>
+                                            <span class="badge bg-@order.StatusColor px-3 py-2 rounded-pill">
+                                                @order.OrderStatus
+                                            </span>
+                                        </td>
+                                        <td><small class="text-muted">@order.TimeAgo</small></td>
                                     </tr>
                                 }
                             </tbody>
@@ -86,19 +146,32 @@
         </div>
 
         <!-- Categories Summary -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Categories</h5>
-                    <a asp-action="Categories" class="btn btn-sm btn-primary">Manage</a>
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Categories</h5>
+                        <a asp-action="Categories" class="btn btn-sm btn-outline-primary rounded-pill px-4">
+                            Manage <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        @foreach (var category in categories ?? Enumerable.Empty<FodanArtistry.Application.DTOs.CategoryModel.CategoryWithCountDto>())
+                <div class="card-body p-4">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var category in categories)
                         {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                @category.Name
-                                <span class="badge bg-primary rounded-pill">@category.ArtworkCount</span>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <span class="fw-semibold">@category.Name</span>
+                                    @if (!string.IsNullOrEmpty(category.CoverImageUrl))
+                                    {
+                                        <small class="d-block text-muted">Latest: @category.LatestArtworkDate?.ToString("MMM dd")</small>
+                                    }
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary rounded-pill me-2">@category.ArtworkCount</span>
+                                    <span class="badge bg-success rounded-pill">@category.AvailableArtworkCount available</span>
+                                </div>
                             </li>
                         }
                     </ul>
@@ -106,21 +179,22 @@
             </div>
         </div>
     </div>
-
-    <!-- Quick Actions -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <a asp-action="Categories" class="btn btn-outline-primary me-2">Manage Categories</a>
-                    <a asp-action="Users" class="btn btn-outline-primary me-2">Manage Users</a>
-                    <a asp-action="Orders" class="btn btn-outline-primary me-2">View All Orders</a>
-                    <a asp-controller="Artwork" asp-action="Create" class="btn btn-outline-success">Add Artwork</a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+
+<style>
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .hover-lift {
+        transition: transform 0.3s;
+    }
+    
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+</style>

@@ -1,0 +1,420 @@
+﻿@model IEnumerable<FodanArtistry.Application.DTOs.AccountModel.UserDto>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<!-- Page Header -->
+<section class="page-header mb-4">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-6 fw-bold gradient-text mb-2">User Management</h1>
+                <p class="text-muted mb-0">Manage users, roles, and permissions</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="d-flex justify-content-md-end gap-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-pill">
+                        <i class="bi bi-people-fill me-2"></i>Total Users: @Model.Count()
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Users Card -->
+<div class="container-fluid px-4">
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-people-fill text-primary me-2"></i>
+                    Registered Users
+                </h5>
+                <div class="user-stats">
+                    <span class="badge bg-light text-dark me-2">
+                        <i class="bi bi-person-check-fill text-success me-1"></i>
+                        @Model.Count(u => u.IsActive) Active
+                    </span>
+                    <span class="badge bg-light text-dark">
+                        <i class="bi bi-person-x-fill text-danger me-1"></i>
+                        @Model.Count(u => !u.IsActive) Inactive
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="usersTable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>User</th>
+                            <th>Contact</th>
+                            <th>Joined</th>
+                            <th class="text-center">Artworks</th>
+                            <th class="text-center">Orders</th>
+                            <th>Roles</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            @if (!string.IsNullOrEmpty(user.ProfilePicture))
+                                            {
+                                                <img src="@user.ProfilePicture" class="rounded-circle" width="40" height="40" alt="">
+                                            }
+                                            else
+                                            {
+                                                <div class="avatar-initials rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                                     style="width: 40px; height: 40px; font-size: 1rem; font-weight: 600;">
+                                                    @user.FirstName?.Substring(0, 1)@user.LastName?.Substring(0, 1)
+                                                </div>
+                                            }
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">@user.FirstName @user.LastName</div>
+                                            <small class="text-muted">@@@user.Email.Split("@@")[0]</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="contact-info">
+                                        <div><i class="bi bi-envelope text-primary me-2 small"></i>@user.Email</div>
+                                        @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                                        {
+                                            <div><i class="bi bi-telephone text-primary me-2 small"></i>@user.PhoneNumber</div>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="join-date">
+                                        <i class="bi bi-calendar-check text-primary me-2"></i>
+                                        @(user.DateJoined?.ToString("MMM dd, yyyy") ?? "N/A")
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">
+                                        <i class="bi bi-palette me-1"></i> @user.ArtworkCount
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
+                                        <i class="bi bi-box me-1"></i> @user.OrderCount
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="role-badges">
+                                        @foreach (var role in user.Roles)
+                                        {
+                                            var roleColor = role switch
+                                            {
+                                                "Admin" => "danger",
+                                                "Artist" => "success",
+                                                "Customer" => "primary",
+                                                _ => "secondary"
+                                            };
+                                            <span class="badge bg-@roleColor bg-opacity-10 text-@roleColor px-3 py-2 rounded-pill me-1 mb-1">
+                                                <i class="bi bi-@(role == "Admin" ? "shield" : role == "Artist" ? "brush" : "person") me-1"></i>
+                                                @role
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="status-badge">
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                                                <i class="bi bi-check-circle-fill me-1"></i> Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
+                                                <i class="bi bi-x-circle-fill me-1"></i> Inactive
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="action-buttons">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill dropdown-toggle px-4"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-shield me-2"></i>Change Role
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-2">
+                                                <li>
+                                                    <form asp-action="AssignRole" method="post" class="role-form">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <button type="submit" name="role" value="Customer"
+                                                                class="dropdown-item @(user.Roles.Contains("Customer") ? "active" : "")">
+                                                            <i class="bi bi-person me-2 text-primary"></i>Customer
+                                                            @if (user.Roles.Contains("Customer"))
+                                                            {
+                                                                <i class="bi bi-check-lg float-end text-success"></i>
+                                                            }
+                                                        </button>
+                                                        <button type="submit" name="role" value="Artist"
+                                                                class="dropdown-item @(user.Roles.Contains("Artist") ? "active" : "")">
+                                                            <i class="bi bi-brush me-2 text-success"></i>Artist
+                                                            @if (user.Roles.Contains("Artist"))
+                                                            {
+                                                                <i class="bi bi-check-lg float-end text-success"></i>
+                                                            }
+                                                        </button>
+                                                        <button type="submit" name="role" value="Admin"
+                                                                class="dropdown-item @(user.Roles.Contains("Admin") ? "active" : "")">
+                                                            <i class="bi bi-shield me-2 text-danger"></i>Admin
+                                                            @if (user.Roles.Contains("Admin"))
+                                                            {
+                                                                <i class="bi bi-check-lg float-end text-success"></i>
+                                                            }
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <button class="btn btn-sm btn-outline-info rounded-pill ms-2 px-3"
+                                                onclick="viewUserDetails('@user.Id')"
+                                                title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 pb-4 px-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Showing @Model.Count() users
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <nav aria-label="User pagination">
+                        <ul class="pagination pagination-sm justify-content-md-end mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Search functionality (optional)
+            $("#searchUsers").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#usersTable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+
+        function viewUserDetails(userId) {
+            // Implement view details functionality
+            window.location.href = '@Url.Action("UserDetails", "Admin")?id=' + userId;
+        }
+
+        // Confirmation for role changes
+        $('.role-form button[type="submit"]').click(function(e) {
+            if (!confirm('Are you sure you want to change this user\'s role?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}
+
+<style>
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-header {
+        padding: 1.5rem 0;
+    }
+
+    .user-avatar {
+        position: relative;
+    }
+
+    .avatar-initials {
+        transition: all 0.3s ease;
+    }
+
+        .avatar-initials:hover {
+            transform: scale(1.1);
+        }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            border-bottom-width: 1px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+            .table tbody tr:hover {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            }
+
+    .contact-info {
+        font-size: 0.9rem;
+    }
+
+        .contact-info div {
+            line-height: 1.6;
+        }
+
+    .join-date {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .role-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .badge {
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+    .dropdown-menu {
+        border-radius: 15px;
+        min-width: 200px;
+        padding: 0.5rem;
+    }
+
+    .dropdown-item {
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s;
+    }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .dropdown-item.active {
+            background: #f8f9fa;
+            color: #212529;
+        }
+
+    .btn-group .btn {
+        transition: all 0.3s;
+    }
+
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .page-link {
+        border: none;
+        padding: 0.5rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 10px;
+        color: #6c757d;
+        transition: all 0.3s;
+    }
+
+        .page-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .user-stats .badge {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .page-header .col-md-6 {
+            text-align: center !important;
+            margin-bottom: 1rem;
+        }
+
+        .table td {
+            min-width: 200px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn-group {
+            width: 100%;
+        }
+
+        .dropdown-toggle {
+            width: 100%;
+        }
+    }
+</style>

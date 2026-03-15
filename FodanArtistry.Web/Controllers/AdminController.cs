@@ -1,12 +1,16 @@
-﻿using FodanArtistry.Application.DTOs.CategoryModel;
+﻿using AspNetCoreGeneratedDocument;
+using FodanArtistry.Application.DTOs.ArtworkDto;
+using FodanArtistry.Application.DTOs.CategoryModel;
+using FodanArtistry.Application.DTOs.OrderModel;
 using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace FodanArtistry.Web.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Artist")]
     public class AdminController : Controller
     {
         private readonly IOrderService _orderService;
@@ -28,18 +32,24 @@ namespace FodanArtistry.Web.Controllers
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            ViewBag.RecentOrders = await _orderService.GetRecentOrdersAsync(10, cancellationToken);
-            ViewBag.OrderSummary = await _orderService.GetOrderSummaryAsync(cancellationToken);
-            ViewBag.Categories = await _categoryService.GetCategoriesWithArtworkCountsAsync(cancellationToken);
-            ViewBag.TotalUsers = (await _accountService.GetAllUsersAsync(cancellationToken)).Count();
-            ViewBag.TotalArtworks = (await _artworkService.GetGalleryAsync(1, 1, cancellationToken: cancellationToken)).TotalCount;
+            var recentOrders = await _orderService.GetRecentOrdersAsync(10, cancellationToken);
+            var orderSummary = await _orderService.GetOrderSummaryAsync(cancellationToken);
+            var categories = await _categoryService.GetCategoriesWithArtworkCountsAsync(cancellationToken);
+            var users = await _accountService.GetAllUsersAsync(cancellationToken);
+
+            ViewBag.RecentOrders = recentOrders;
+            ViewBag.OrderSummary = orderSummary;
+            ViewBag.Categories = categories;
+            ViewBag.TotalUsers = users.Count();
+            ViewBag.TotalArtworks = categories.Sum(c => c.ArtworkCount);
 
             return View();
         }
 
-        public async Task<IActionResult> Orders(Guid Id,CancellationToken cancellationToken)
+        public async Task<IActionResult> Orders(CancellationToken cancellationToken)
         {
-            return View(await _orderService.GetOrderAsync(Id));
+            var orders = await _orderService.GetAllOrdersAsync(cancellationToken);
+            return View(orders ?? new List<OrderDto>());
         }
 
         [HttpPost]
@@ -109,6 +119,18 @@ namespace FodanArtistry.Web.Controllers
             }
             catch (Exception ex) { TempData["ErrorMessage"] = ex.Message; }
             return RedirectToAction(nameof(Users));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddArtWork(CreateArtworkDto Dto,string artistId,CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _artworkService.CreateArtworkAsync(Dto, artistId, cancellationToken);
+                TempData["SuccessMessage"] = $"Artwork '{Dto}' created";
+            }
+            catch (Exception ex) { TempData["ErrorMessage"] = ex.Message; }
+            return RedirectToAction(nameof(Views_Admin_Index));
         }
     }
 }

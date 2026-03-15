@@ -1,65 +1,180 @@
 ﻿@model IEnumerable<FodanArtistry.Application.DTOs.ArtworkModel.ArtworkDto>
 
 @{
-    ViewData["Title"] = "Home - Fodan Artistry";
+    ViewData["Title"] = "Fodan Artistry - Premium Art Gallery";
+    var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto> 
+                     ?? new List<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>();
 }
 
-<!-- Hero Section -->
-<section class="hero-section text-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="container">
-        <h1 class="display-4 text-white mb-4">Welcome to Fodan Artistry</h1>
-        <p class="lead text-white mb-5">Discover unique artworks from talented artists around the world</p>
-        <a asp-controller="Artwork" asp-action="Gallery" class="btn btn-light btn-lg px-5">Explore Gallery</a>
+<!-- Hero Section with Parallax -->
+<section class="hero-section position-relative overflow-hidden" style="height: 90vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+    <div class="position-absolute top-50 start-50 translate-middle text-center text-white z-index-1" style="z-index: 2;">
+        <h1 class="display-1 fw-bold mb-4 animate__animated animate__fadeInDown">Fodan Artistry</h1>
+        <p class="lead fs-3 mb-5 animate__animated animate__fadeInUp">Where Creativity Meets Excellence</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a asp-controller="Artwork" asp-action="Gallery" class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow-lg">
+                <i class="bi bi-images"></i> Explore Gallery
+            </a>
+            @if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill">
+                    <i class="bi bi-person-plus"></i> Join Now
+                </a>
+            }
+        </div>
     </div>
+    <div class="position-absolute bottom-0 start-0 w-100" style="height: 150px; background: linear-gradient(to top, #ffffff, transparent);"></div>
 </section>
 
 <!-- Featured Artworks -->
 <section class="py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Featured Artworks</h2>
-        <div class="row">
-            @foreach (var artwork in Model)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@artwork.ImageUrl" class="card-img-top" alt="@artwork.Title" style="height: 250px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@artwork.Title</h5>
-                            <p class="card-text text-muted">by @artwork.ArtistName</p>
-                            <p class="card-text">@artwork.Description.Substring(0, Math.Min(100, artwork.Description.Length))...</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 mb-0">@artwork.Price.ToString("C")</span>
-                                <a asp-controller="Artwork" asp-action="Details" asp-route-id="@artwork.Id" class="btn btn-outline-primary">View</a>
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Featured Artworks</h2>
+            <div class="divider mx-auto" style="width: 100px; height: 3px; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+            <p class="text-muted mt-3">Hand-picked masterpieces from our talented artists</p>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="empty-state mb-4">
+                    <i class="bi bi-palette display-1 text-muted"></i>
+                </div>
+                <h3>No featured artworks yet</h3>
+                <p class="text-muted">Check back soon for amazing pieces!</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var artwork in Model.Take(6))
+                {
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card border-0 shadow-lg h-100 overflow-hidden">
+                            <div class="position-relative">
+                                <img src="@artwork.ImageUrl" class="card-img-top" alt="@artwork.Title" 
+                                     style="height: 300px; object-fit: cover; transition: transform 0.5s;">
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-primary px-3 py-2">@artwork.CategoryName</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">@artwork.Title</h5>
+                                <p class="text-muted mb-2">
+                                    <i class="bi bi-person"></i> @artwork.ArtistName
+                                </p>
+                                <p class="card-text small text-muted mb-3">
+                                    @(artwork.Description.Length > 100 ? 
+                                      artwork.Description.Substring(0, 100) + "..." : 
+                                      artwork.Description)
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h4 text-primary fw-bold mb-0">@artwork.Price.ToString("C")</span>
+                                    <a asp-controller="Artwork" asp-action="Details" asp-route-id="@artwork.Id" 
+                                       class="btn btn-outline-primary rounded-pill px-4">
+                                        View <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-        <div class="text-center mt-4">
-            <a asp-controller="Artwork" asp-action="Gallery" class="btn btn-primary btn-lg">View All Artworks</a>
-        </div>
+                }
+            </div>
+            
+            <div class="text-center mt-5">
+                <a asp-controller="Artwork" asp-action="Gallery" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                    View Full Gallery <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        }
     </div>
 </section>
 
 <!-- Categories Section -->
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center mb-5">Browse by Category</h2>
-        <div class="row">
-            @{
-                var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>
-                                ?? new List<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>();
-            }
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Browse by Category</h2>
+            <div class="divider mx-auto" style="width: 100px; height: 3px; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+            <p class="text-muted mt-3">Find your perfect piece by exploring our categories</p>
+        </div>
+        
+        <div class="row g-4">
             @foreach (var category in categories)
             {
-                <div class="col-md-3 mb-3">
-                    <a asp-controller="Artwork" asp-action="Gallery" asp-route-category="@category.Name"
-                           class="btn btn-outline-secondary w-100 py-3">
-                        @category.Name
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Artwork" asp-action="Gallery" asp-route-category="@category.Name" 
+                       class="text-decoration-none">
+                        <div class="card border-0 shadow-sm hover-lift text-center p-4">
+                            <div class="category-icon mb-3">
+                                <i class="bi bi-palette fs-1 text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">@category.Name</h5>
+                            <p class="text-muted small mb-0">@category.ArtworkCount artworks</p>
+                        </div>
                     </a>
                 </div>
             }
         </div>
     </div>
 </section>
+
+<!-- Newsletter Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center text-white">
+                <h2 class="display-5 fw-bold mb-4">Stay Inspired</h2>
+                <p class="lead mb-5">Subscribe to receive updates on new artworks, artist features, and exclusive offers.</p>
+                <form class="row g-3 justify-content-center">
+                    <div class="col-md-8">
+                        <div class="input-group input-group-lg">
+                            <input type="email" class="form-control form-control-lg border-0" 
+                                   placeholder="Enter your email address">
+                            <button class="btn btn-dark btn-lg px-5" type="submit">
+                                Subscribe <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover;
+        opacity: 0.1;
+        animation: zoom 20s infinite alternate;
+    }
+    
+    @@keyframes zoom {
+        from { transform: scale(1); }
+        to { transform: scale(1.1); }
+    }
+    
+    .hover-lift {
+        transition: transform 0.3s;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card:hover img {
+        transform: scale(1.05);
+    }
+</style>

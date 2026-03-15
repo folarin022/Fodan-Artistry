@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="mb-4">
+                <i class="bi bi-shield-lock display-1 text-danger"></i>
+            </div>
+            <h1 class="display-4 mb-4">Access Denied</h1>
+            <p class="lead mb-4">You don't have permission to access this page.</p>
+            
+            @if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <div class="alert alert-info">
+                    <p>You are not logged in.</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <p>
+                        Your current role:
+                        <strong>
+                            @string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))
+                        </strong>
+                    </p>
+                    <p>You need the appropriate role to access this page.</p>
+                </div>
+            }
+            
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary mt-3">
+                <i class="bi bi-house"></i> Go to Home
+            </a>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,7 @@ using FodanArtistry.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FodanArtistry.Web.Migrations
 {
     [DbContext(typeof(FodanArtistryDbContext))]
-    partial class FodanArtistryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313135710_FixedRoles")]
+    partial class FixedRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,6 +79,10 @@ namespace FodanArtistry.Web.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePicture")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -143,7 +150,7 @@ namespace FodanArtistry.Web.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Artworks", (string)null);
+                    b.ToTable("Artworks");
                 });
 
             modelBuilder.Entity("FodanArtistry.Domain.Data.Category", b =>
@@ -165,7 +172,7 @@ namespace FodanArtistry.Web.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("FodanArtistry.Domain.Data.Favourite", b =>
@@ -196,7 +203,7 @@ namespace FodanArtistry.Web.Migrations
                     b.HasIndex("UserId", "ArtworkId")
                         .IsUnique();
 
-                    b.ToTable("Favorites", (string)null);
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("FodanArtistry.Domain.Data.Order", b =>
@@ -238,7 +245,7 @@ namespace FodanArtistry.Web.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("FodanArtistry.Domain.Data.OrderItem", b =>
@@ -270,7 +277,7 @@ namespace FodanArtistry.Web.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

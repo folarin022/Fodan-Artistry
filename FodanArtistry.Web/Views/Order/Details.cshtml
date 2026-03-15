@@ -1,0 +1,150 @@
+﻿@model FodanArtistry.Application.DTOs.OrderModel.OrderDto
+@{
+    ViewData["Title"] = $"Order #{Model.OrderNumber} - Fodan Artistry";
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Orders">Order Management</a></li>
+            }
+            else
+            {
+                <li class="breadcrumb-item"><a asp-action="MyOrders">My Orders</a></li>
+            }
+            <li class="breadcrumb-item active">Order @Model.OrderNumber</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Order Information</h6>
+                            <p class="mb-1"><strong>Order #:</strong> @Model.OrderNumber</p>
+                            <p class="mb-1"><strong>Date:</strong> @Model.OrderDate.ToString("MMMM dd, yyyy hh:mm tt")</p>
+                            <p class="mb-1"><strong>Total Amount:</strong> <span class="text-primary fw-bold">@Model.TotalAmount.ToString("C")</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Customer Information</h6>
+                            <p class="mb-1"><strong>Name:</strong> @Model.CustomerName</p>
+                            <p class="mb-1"><strong>Email:</strong> @Model.CustomerEmail</p>
+                            @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                            {
+                                <p class="mb-1"><strong>Phone:</strong> @Model.CustomerPhone</p>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.ShippingAddress))
+                    {
+                        <div class="mb-4">
+                            <h6>Shipping Address</h6>
+                            <p class="mb-0">@Model.ShippingAddress</p>
+                        </div>
+                    }
+
+                    <h6 class="mb-3">Order Items</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Artwork</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>@item.ArtworkTitle</td>
+                                        <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">@item.Subtotal.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Total:</th>
+                                    <th class="text-end">@Model.TotalAmount.ToString("C")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Order Placed</strong>
+                            <br />
+                            <small class="text-muted ms-4">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</small>
+                        </li>
+                        @if (Model.Status != "Pending")
+                        {
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <strong>Processing</strong>
+                                <br />
+                                <small class="text-muted ms-4">Order is being processed</small>
+                            </li>
+                        }
+                        @if (Model.Status == "Completed" || Model.Status == "Delivered")
+                        {
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <strong>Completed</strong>
+                                <br />
+                                <small class="text-muted ms-4">Order completed successfully</small>
+                            </li>
+                        }
+                        @if (Model.Status == "Cancelled")
+                        {
+                            <li class="mb-3">
+                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                                <strong>Cancelled</strong>
+                                <br />
+                                <small class="text-muted ms-4">Order was cancelled</small>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            @if (Model.Status == "Pending")
+            {
+                <div class="card shadow">
+                    <div class="card-body">
+                        <form asp-action="Cancel" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-outline-danger w-100"
+                                    onclick="return confirm('Are you sure you want to cancel this order?')">
+                                <i class="bi bi-x-circle"></i> Cancel Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

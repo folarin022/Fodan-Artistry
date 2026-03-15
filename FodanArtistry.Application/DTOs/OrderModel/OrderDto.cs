@@ -14,8 +14,9 @@ namespace FodanArtistry.Application.DTOs.OrderModel
         public string OrderNumber { get; internal set; }
         public string CustomerName { get; internal set; }
         public string CustomerEmail { get; internal set; }
-        public object CustomerPhone { get; internal set; }
-        public object ShippingAddress { get; internal set; }
+        public string CustomerPhone { get; internal set; }
+        public string StatusColor { get; internal set; }
+        public string ShippingAddress { get; internal set; }
         public DateTime OrderDate { get; internal set; }
         public decimal TotalAmount { get; internal set; }
         public string Status { get; internal set; }

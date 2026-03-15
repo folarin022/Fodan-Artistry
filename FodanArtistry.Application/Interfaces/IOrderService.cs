@@ -15,5 +15,6 @@ namespace FodanArtistry.Application.Interfaces
 
         Task<IEnumerable<RecentOrderDto>> GetRecentOrdersAsync(int count = 10, CancellationToken cancellationToken = default);
         Task<DashboardOrderSummaryDto> GetOrderSummaryAsync(CancellationToken cancellationToken);
+        Task<IEnumerable<OrderDto>> GetAllOrdersAsync(CancellationToken cancellationToken = default);
     }
 }

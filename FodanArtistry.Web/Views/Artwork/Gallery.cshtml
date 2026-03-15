@@ -2,109 +2,187 @@
 
 @{
     ViewData["Title"] = "Gallery - Fodan Artistry";
+    var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>
+                     ?? new List<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>();
 }
 
-<div class="container py-4">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2>Artwork Gallery</h2>
-            <p class="text-muted">Discover amazing artworks from our talented artists</p>
-        </div>
-        <div class="col-md-4 text-end">
-            @if (User.IsInRole("Artist"))
+<!-- Hero Banner -->
+<section class="gallery-hero mb-5">
+    <div class="container-fluid px-0">
+        <div class="hero-content text-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h1 class="display-4 text-white fw-bold mb-3">Artwork Gallery</h1>
+            <p class="lead text-white-50 mb-4">Discover extraordinary pieces from talented artists</p>
+            @if (User.IsInRole("Artist") || User.IsInRole("Admin"))
             {
-                <a asp-action="Create" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Upload Artwork
+                <a asp-action="Create" class="btn btn-light btn-lg px-5 shadow">
+                    <i class="bi bi-cloud-upload"></i> Upload Your Art
                 </a>
             }
         </div>
     </div>
+</section>
 
-    <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <select class="form-select" id="categoryFilter" onchange="filterByCategory()">
-                <option value="">All Categories</option>
-                @foreach (var category in ViewBag.Categories)
-                {
-                    <option value="@category.Name" selected="@(ViewBag.CurrentCategory == category.Name)">
-                        @category.Name
-                    </option>
-                }
-            </select>
-        </div>
-        <div class="col-md-6">
-            <div class="input-group">
-                <input type="text" class="form-control" id="searchInput" placeholder="Search artworks..." value="@ViewBag.CurrentSearch">
-                <button class="btn btn-outline-secondary" type="button" onclick="searchArtworks()">
-                    <i class="bi bi-search"></i> Search
-                </button>
+<!-- Filter Bar -->
+<div class="container mb-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <select class="form-select form-select-lg" id="categoryFilter">
+                        <option value="">✨ All Categories</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Name" selected="@(ViewBag.CurrentCategory == category.Name)">
+                                @category.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group input-group-lg">
+                        <input type="text" class="form-control" id="searchInput"
+                               placeholder="🔍 Search by title, artist, description..."
+                               value="@ViewBag.CurrentSearch">
+                        <button class="btn btn-primary" onclick="searchArtworks()">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary btn-lg w-100" onclick="clearFilters()">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
-                <i class="bi bi-x-circle"></i> Clear
-            </button>
-        </div>
     </div>
+</div>
 
-    <!-- Artworks Grid -->
+<!-- Masonry Gallery Grid -->
+<div class="container-fluid px-4">
     @if (!Model.Items.Any())
     {
         <div class="text-center py-5">
-            <i class="bi bi-images display-1 text-muted"></i>
-            <h4 class="mt-3">No artworks found</h4>
+            <div class="empty-state mb-4">
+                <i class="bi bi-images display-1 text-muted"></i>
+            </div>
+            <h3>No artworks found</h3>
             <p class="text-muted">Try adjusting your filters or check back later</p>
+            @if (User.IsInRole("Artist") || User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="btn btn-primary btn-lg mt-3">
+                    <i class="bi bi-cloud-upload"></i> Be the First to Upload
+                </a>
+            }
         </div>
     }
     else
     {
-        <div class="row">
+        <div class="row g-4 masonry-grid">
             @foreach (var artwork in Model.Items)
             {
-                <div class="col-md-4 col-lg-3 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@artwork.ImageUrl" class="card-img-top" alt="@artwork.Title" style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@artwork.Title</h5>
-                            <p class="card-text text-muted">by @artwork.ArtistName</p>
-                            <p class="card-text">@artwork.CategoryName</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 mb-0">@artwork.Price.ToString("C")</span>
-                                <span class="badge bg-@(artwork.IsAvailable ? "success" : "danger")">
-                                    @(artwork.IsAvailable ? "Available" : "Sold")
-                                </span>
+                <div class="col-md-6 col-lg-4 col-xl-3 masonry-item">
+                    <div class="card h-100 border-0 shadow-hover overflow-hidden">
+                        <div class="position-relative">
+                            <img src="@artwork.ImageUrl" class="card-img-top" alt="@artwork.Title"
+                                 style="height: 300px; object-fit: cover;"
+                                 onerror="this.src='/images/placeholder.jpg'">
+                            
+                            @if (!artwork.IsAvailable)
+                            {
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-danger px-3 py-2">SOLD</span>
+                                </div>
+                            }
+                            
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="badge bg-primary px-3 py-2">@artwork.CategoryName</span>
                             </div>
                         </div>
-                        <div class="card-footer bg-transparent">
-                            <a asp-action="Details" asp-route-id="@artwork.Id" class="btn btn-outline-primary w-100">
-                                View Details
-                            </a>
+                        
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold mb-1">@artwork.Title</h5>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-person"></i>
+                                <a asp-action="Artist" asp-route-artistId="@artwork.ArtistId" class="text-decoration-none">
+                                    @artwork.ArtistName
+                                </a>
+                            </p>
+                            <p class="card-text small text-muted mb-3">
+                                @(artwork.Description.Length > 100 ?
+                                  artwork.Description.Substring(0, 100) + "..." :
+                                  artwork.Description)
+                            </p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="h5 text-primary fw-bold mb-0">@artwork.Price.ToString("C")</span>
+                                    @if (artwork.FavoriteCount > 0)
+                                    {
+                                        <small class="text-muted d-block">
+                                            <i class="bi bi-heart-fill text-danger"></i> @artwork.FavoriteCount
+                                        </small>
+                                    }
+                                </div>
+                                <a asp-action="Details" asp-route-id="@artwork.Id"
+                                       class="btn btn-outline-primary rounded-pill px-4">
+                                    View <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
+                        
+                        @if (User.IsInRole("Admin") || (User.IsInRole("Artist") && artwork.ArtistId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value))
+                        {
+                            <div class="card-footer bg-light">
+                                <div class="btn-group w-100">
+                                    <a asp-action="Edit" asp-route-id="@artwork.Id"
+                                           class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                            onclick="confirmDelete('@artwork.Id', '@artwork.Title')">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             }
         </div>
 
-        <!-- Pagination -->
+        <!-- Premium Pagination -->
         @if (Model.TotalPages > 1)
         {
-            <nav class="mt-4">
+            <nav class="mt-5">
                 <ul class="pagination justify-content-center">
                     <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-                        <a class="page-link" href="javascript:void(0)" onclick="goToPage(@(Model.PageNumber - 1))">Previous</a>
+                        <a class="page-link rounded-pill" href="javascript:void(0)" onclick="goToPage(1)">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link rounded-pill" href="javascript:void(0)" onclick="goToPage(@(Model.PageNumber - 1))">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
                     </li>
                     
-                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
                     {
                         <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                            <a class="page-link" href="javascript:void(0)" onclick="goToPage(@i)">@i</a>
+                            <a class="page-link rounded-pill" href="javascript:void(0)" onclick="goToPage(@i)">@i</a>
                         </li>
                     }
                     
                     <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-                        <a class="page-link" href="javascript:void(0)" onclick="goToPage(@(Model.PageNumber + 1))">Next</a>
+                        <a class="page-link rounded-pill" href="javascript:void(0)" onclick="goToPage(@(Model.PageNumber + 1))">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link rounded-pill" href="javascript:void(0)" onclick="goToPage(@Model.TotalPages)">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
                     </li>
                 </ul>
             </nav>
@@ -112,18 +190,45 @@
     }
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteTitle"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteId" />
+                    <button type="submit" class="btn btn-danger">Delete Permanently</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // Filter functions
         function filterByCategory() {
             var category = document.getElementById('categoryFilter').value;
             var search = document.getElementById('searchInput').value;
-            window.location.href = '@Url.Action("Gallery")?page=1&category=' + encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
+            window.location.href = '@Url.Action("Gallery")?page=1&category=' +
+                encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
         }
 
         function searchArtworks() {
             var category = document.getElementById('categoryFilter').value;
             var search = document.getElementById('searchInput').value;
-            window.location.href = '@Url.Action("Gallery")?page=1&category=' + encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
+            window.location.href = '@Url.Action("Gallery")?page=1&category=' +
+                encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
         }
 
         function clearFilters() {
@@ -133,7 +238,98 @@
         function goToPage(page) {
             var category = '@ViewBag.CurrentCategory';
             var search = '@ViewBag.CurrentSearch';
-            window.location.href = '@Url.Action("Gallery")?page=' + page + '&category=' + encodeURIComponent(category) + '&search=' + encodeURIComponent(search);
+            window.location.href = '@Url.Action("Gallery")?page=' + page +
+                '&category=' + encodeURIComponent(category) +
+                '&search=' + encodeURIComponent(search);
         }
+
+        // Delete modal
+        function confirmDelete(id, title) {
+            document.getElementById('deleteId').value = id;
+            document.getElementById('deleteTitle').textContent = title;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Enter key for search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchArtworks();
+            }
+        });
+
+        // Auto-dismiss alerts
+        window.setTimeout(function() {
+            $(".alert").fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
     </script>
 }
+
+<style>
+    .gallery-hero {
+        margin-top: -1.5rem;
+    }
+    
+    .shadow-hover {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+        .shadow-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        }
+    
+    .masonry-grid {
+        column-count: 4;
+        column-gap: 1.5rem;
+    }
+    
+    .masonry-item {
+        break-inside: avoid;
+        margin-bottom: 1.5rem;
+    }
+    
+    @@media (max-width: 1200px) {
+        .masonry-grid {
+            column-count: 3;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .masonry-grid {
+            column-count: 2;
+        }
+    }
+    
+    @@media (max-width: 576px) {
+        .masonry-grid {
+            column-count: 1;
+        }
+    }
+    
+    .page-link {
+        margin: 0 5px;
+        border: none;
+        color: #667eea;
+    }
+    
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .page-item.disabled .page-link {
+        color: #ccc;
+    }
+    
+    .btn-outline-primary {
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+        }
+</style>

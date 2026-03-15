@@ -1,0 +1,500 @@
+﻿@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<!-- Hero Section -->
+<section class="contact-hero mb-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold gradient-text mb-3">Get in Touch</h1>
+                <p class="lead text-muted mb-0">We'd love to hear from you. Choose your preferred way to connect with us.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Cards -->
+<section class="mb-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Visit Us Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="contact-card text-center p-4 h-100">
+                    <div class="contact-icon-wrapper mb-4">
+                        <div class="contact-icon bg-primary bg-opacity-10">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-3">Visit Our Gallery</h5>
+                    <p class="text-muted mb-3">50 Seidu Toriola Street<br>Lagos, Nigeria</p>
+                    <a href="https://maps.google.com/?q=50+Seidu+Toriola+Street+Lagos+Nigeria" 
+                       target="_blank" 
+                       class="btn btn-outline-primary rounded-pill btn-sm stretched-link">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Get Directions
+                    </a>
+                </div>
+            </div>
+
+            <!-- Email Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="contact-card text-center p-4 h-100">
+                    <div class="contact-icon-wrapper mb-4">
+                        <div class="contact-icon bg-success bg-opacity-10">
+                            <i class="bi bi-envelope-fill text-success"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-3">Email Us</h5>
+                    <p class="text-muted mb-3">
+                        info@fodanartistry.com<br>
+                        support@fodanartistry.com
+                    </p>
+                    <a href="mailto:info@fodanartistry.com?subject=Inquiry%20from%20Website" 
+                       class="btn btn-outline-success rounded-pill btn-sm">
+                        <i class="bi bi-envelope me-2"></i>Send Email
+                    </a>
+                </div>
+            </div>
+
+            <!-- WhatsApp Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="contact-card text-center p-4 h-100 whatsapp-card">
+                    <div class="contact-icon-wrapper mb-4">
+                        <div class="contact-icon bg-success bg-opacity-10" style="color: #25D366;">
+                            <i class="bi bi-whatsapp"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-3">WhatsApp</h5>
+                    <p class="text-muted mb-3">
+                        +234 80 8223 2578<br>
+                        +234 91 1605 6771
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="https://wa.me/2348082232578?text=Hello%20Fodan%20Artistry%2C%20I%20have%20a%20question%20about..." 
+                           target="_blank" 
+                           class="btn btn-success rounded-pill btn-sm px-4">
+                            <i class="bi bi-whatsapp me-2"></i>Chat Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hours Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="contact-card text-center p-4 h-100">
+                    <div class="contact-icon-wrapper mb-4">
+                        <div class="contact-icon bg-info bg-opacity-10">
+                            <i class="bi bi-clock-fill text-info"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-3">Always Available</h5>
+                    <p class="text-muted mb-3">
+                        24/7 Online Support<br>
+                        Instant Responses
+                    </p>
+                    <div class="availability-badge">
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                            <i class="bi bi-check-circle-fill me-1"></i>Online Now
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Chat Section -->
+<section class="mb-5">
+    <div class="container">
+        <div class="quick-chat-card bg-gradient-primary rounded-4 p-5 text-white text-center">
+            <h2 class="display-6 fw-bold mb-3">Prefer Instant Messaging?</h2>
+            <p class="lead mb-4 opacity-90">Click below to start a WhatsApp conversation right now</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="https://wa.me/2348082232578?text=Hello%20Fodan%20Artistry%2C%20I%27m%20interested%20in%20your%20artwork%20collection." 
+                   target="_blank" 
+                   class="btn btn-light btn-lg rounded-pill px-5 py-3">
+                    <i class="bi bi-whatsapp me-2" style="color: #25D366;"></i>
+                    Chat on WhatsApp
+                </a>
+                <a href="https://wa.me/2349116056771?text=Hello%20Fodan%20Artistry%2C%20I%20have%20a%20question%20about..." 
+                   target="_blank" 
+                   class="btn btn-outline-light btn-lg rounded-pill px-5 py-3">
+                    <i class="bi bi-whatsapp me-2"></i>
+                    Alternative Number
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="mb-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg overflow-hidden">
+                    <div class="row g-0">
+                        <!-- Form Side -->
+                        <div class="col-md-7 p-4 p-md-5">
+                            <h3 class="fw-bold mb-4">Send us a Message</h3>
+                            <form method="post" id="contactForm">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
+                                            <label for="name">Your Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Your Email" required>
+                                            <label for="email">Your Email</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject" required>
+                                            <label for="subject">Subject</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <textarea class="form-control" id="message" name="message" style="height: 150px" placeholder="Your Message" required></textarea>
+                                            <label for="message">Your Message</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+                                                <i class="bi bi-send me-2"></i>Send Message
+                                            </button>
+                                            <span class="text-muted small">or</span>
+                                            <a href="https://wa.me/2348082232578?text=I%20have%20a%20question%20from%20the%20contact%20form:" 
+                                               target="_blank"
+                                               class="btn btn-outline-success rounded-pill">
+                                                <i class="bi bi-whatsapp me-2"></i>WhatsApp
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Info Side -->
+                        <div class="col-md-5 bg-gradient-primary p-4 p-md-5 text-white">
+                            <h4 class="fw-bold mb-4">Why Choose Us?</h4>
+                            <div class="d-flex mb-4">
+                                <div class="me-3">
+                                    <i class="bi bi-palette fs-2"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Original Artworks</h6>
+                                    <p class="small opacity-90">Direct from talented artists</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-4">
+                                <div class="me-3">
+                                    <i class="bi bi-truck fs-2"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Fast Delivery</h6>
+                                    <p class="small opacity-90">Secure worldwide shipping</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-4">
+                                <div class="me-3">
+                                    <i class="bi bi-shield-check fs-2"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Secure Payments</h6>
+                                    <p class="small opacity-90">100% protected transactions</p>
+                                </div>
+                            </div>
+                            <hr class="opacity-25 my-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-whatsapp fs-1 me-3"></i>
+                                <div>
+                                    <p class="small opacity-90 mb-0">Quickest response on</p>
+                                    <h6 class="fw-bold">WhatsApp Chat</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="mb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-lg overflow-hidden">
+                    <div class="ratio ratio-21x9">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.211312138821!2d3.3791!3d6.5244!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMzEnMjcuOCJOIDPCsDIyJzQ0LjgiRQ!5e0!3m2!1sen!2sng!4v1234567890" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Form submission handling
+        $('#contactForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Show sending state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.html();
+            submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Sending...').prop('disabled', true);
+            
+            // Simulate form submission (replace with actual AJAX)
+            setTimeout(() => {
+                submitBtn.html(originalText).prop('disabled', false);
+                
+                // Show success message
+                showToast('Message sent successfully! We\'ll respond within 24 hours.', 'success');
+                this.reset();
+            }, 1500);
+        });
+
+        // WhatsApp quick actions
+        $('.whatsapp-quick-btn').click(function() {
+            const message = encodeURIComponent('Hello Fodan Artistry, I visited your website and would like to know more about your artworks.');
+            window.open(`https://wa.me/2348082232578?text=${message}`, '_blank');
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast-message ${type}`;
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'} text-${type === 'success' ? 'success' : 'danger'}"></i>
+                <span>${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+    </script>
+}
+
+<style>
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .contact-hero {
+        padding-top: 3rem;
+    }
+
+    .contact-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .contact-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+    }
+
+    .contact-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .whatsapp-card:hover {
+        box-shadow: 0 20px 40px rgba(37, 211, 102, 0.15);
+    }
+
+    .whatsapp-card:hover::before {
+        background: linear-gradient(90deg, #25D366, #128C7E);
+    }
+
+    .contact-icon-wrapper {
+        display: inline-block;
+    }
+
+    .contact-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+
+    .contact-card:hover .contact-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .quick-chat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        height: auto;
+        padding: 1rem;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-floating > label {
+        padding: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-outline-primary {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: transparent;
+    }
+
+    .btn-success {
+        background: #25D366;
+        border-color: #25D366;
+    }
+
+    .btn-success:hover {
+        background: #128C7E;
+        border-color: #128C7E;
+    }
+
+    .opacity-90 {
+        opacity: 0.9;
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast-message {
+        background: white;
+        border-left: 4px solid;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 0.5rem;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+    }
+
+    .toast-message.success {
+        border-left-color: #10b981;
+    }
+
+    .toast-message.error {
+        border-left-color: #ef4444;
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .contact-hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+        }
+        
+        .quick-chat-card .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>

@@ -4,7 +4,9 @@ using FodanArtistry.Domain.Data;
 using FodanArtistry.Infrastructure.Context;
 using FodanArtistry.Infrastructure.Repositories;
 using FodanArtistry.Infrastructure.Repository;
+using FodanArtistry.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,10 @@ builder.Services.AddDbContext<FodanArtistryDbContext>(options =>
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
+
+    options.SignIn.RequireConfirmedAccount = true;  
+    options.SignIn.RequireConfirmedEmail = true;        
+    options.SignIn.RequireConfirmedPhoneNumber = false;
     // Configure Identity options
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = true;
@@ -27,6 +33,15 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
     .AddRoles<IdentityRole>()  // If you want roles
     .AddEntityFrameworkStores<FodanArtistryDbContext>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";  // ← Your custom path
+    options.ReturnUrlParameter = "returnUrl";
+});
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<FodanArtistryDbContext>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -45,6 +60,47 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    string[] roles = new[] { "Admin", "Artist", "Customer" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    var adminEmail = "fodanartistry@gmail.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+    if (adminUser == null)
+    {
+        var admin = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            FirstName = "Admin",
+            LastName = "User",
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(admin, "FodanArtistry@2026");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "Admin , Artist");
+        }
+    }
+}
+var uploadsPath = Path.Combine(app.Environment.WebRootPath, "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -67,7 +67,7 @@ namespace FodanArtistry.Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await _accountService.LogoutAsync();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         [Authorize]

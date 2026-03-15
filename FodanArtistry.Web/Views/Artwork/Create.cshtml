@@ -1,0 +1,451 @@
+﻿@model FodanArtistry.Application.DTOs.ArtworkDto.CreateArtworkDto
+@{
+    ViewData["Title"] = "Upload New Artwork";
+    var categories = ViewBag.Categories as IEnumerable<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>
+                     ?? new List<FodanArtistry.Application.DTOs.CategoryModel.CategoryDto>();
+}
+
+<!-- Page Header with Gradient -->
+<section class="page-header mb-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold gradient-text mb-3">Upload New Artwork</h1>
+                <p class="lead text-muted">Share your masterpiece with the world</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Main Card -->
+            <div class="card border-0 shadow-lg mb-5">
+                <div class="card-body p-5">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data" id="createForm">
+                        @Html.AntiForgeryToken()
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-semibold">
+                                Artwork Title <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="bi bi-pencil-fill text-primary"></i>
+                                </span>
+                                <input asp-for="Title" class="form-control form-control-lg border-0 bg-light"
+                                       placeholder="e.g., 'Sunset Dreams'" />
+                            </div>
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Choose a captivating title that represents your artwork
+                            </small>
+                        </div>
+
+                        <!-- Price and Category Row -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label fw-semibold">
+                                    Price ($) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0">$</span>
+                                    <input asp-for="Price" class="form-control form-control-lg border-0 bg-light"
+                                           type="number" step="0.01" min="0" placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CategoryId" class="form-label fw-semibold">
+                                    Category <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0">
+                                        <i class="bi bi-tags-fill text-primary"></i>
+                                    </span>
+                                    <select asp-for="CategoryId" class="form-select form-select-lg border-0 bg-light">
+                                        <option value="">Select Category</option>
+                                        @foreach (var category in categories)
+                                        {
+                                            <option value="@category.Id">@category.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-5">
+                            <label asp-for="Description" class="form-label fw-semibold">
+                                Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Description" class="form-control form-control-lg border-0 bg-light"
+                                      rows="5" placeholder="Describe your artwork - inspiration, medium, size, story..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Minimum 20 characters recommended
+                                </small>
+                                <small class="text-muted char-counter" id="charCount">0/2000</small>
+                            </div>
+                        </div>
+
+                        <!-- Image Upload Section -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-image-fill text-primary me-2"></i>
+                                Artwork Image <span class="text-danger">*</span>
+                            </h5>
+                            
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-content">
+                                    <i class="bi bi-cloud-arrow-up-fill upload-icon"></i>
+                                    <h6 class="fw-semibold mt-3">Drag & Drop or Click to Upload</h6>
+                                    <p class="text-muted small mb-2">Supported formats: JPG, PNG, GIF</p>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                        Max 5MB
+                                    </span>
+                                </div>
+                                <input type="file" name="imageFile" id="imageFile" accept="image/*" />
+                            </div>
+
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="preview-container mt-3">
+                                <img src="" alt="Preview" class="preview-image" />
+                                <button type="button" class="btn btn-sm btn-danger rounded-circle remove-preview" id="removeImage">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            <div id="imageError" class="text-danger small mt-2"></div>
+                        </div>
+
+                        <!-- Tips Card -->
+                        <div class="card bg-light border-0 mb-5">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="bi bi-lightbulb-fill text-warning me-2"></i>
+                                    Tips for Great Artwork Listings
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                Use high-quality images (min 1000px width)
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                Include dimensions and medium in description
+                                            </li>
+                                            <li>
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                Research similar artworks for pricing
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                Add multiple angles if possible
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                Mention inspiration or story behind the piece
+                                            </li>
+                                            <li>
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                Choose the most appropriate category
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-3">
+                            <a asp-action="Gallery" class="btn btn-outline-secondary btn-lg rounded-pill px-5">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" id="submitBtn">
+                                <i class="bi bi-cloud-upload me-2"></i>Upload Artwork
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const imageInput = document.getElementById('imageFile');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = imagePreview.querySelector('img');
+            const removeBtn = document.getElementById('removeImage');
+
+            // Character counter
+            $('#Description').on('input', function() {
+                const length = $(this).val().length;
+                $('#charCount').text(length + '/2000');
+                if (length > 2000) {
+                    $('#charCount').addClass('text-danger');
+                } else {
+                    $('#charCount').removeClass('text-danger');
+                }
+            });
+
+            // Upload area click
+            uploadArea.addEventListener('click', () => imageInput.click());
+
+            // Drag & drop handlers
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const file = e.dataTransfer.files[0];
+                if (file) handleImageSelect(file);
+            });
+
+            // File input change
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) handleImageSelect(file);
+            });
+
+            // Remove image
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                imageInput.value = '';
+                imagePreview.classList.remove('show');
+                uploadArea.style.display = 'block';
+            });
+
+            // Image selection handler
+            function handleImageSelect(file) {
+                if (!file.type.startsWith('image/')) {
+                    showError('Please select a valid image file');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('File size must be less than 5MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.add('show');
+                    uploadArea.style.display = 'none';
+                    hideError();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function showError(message) {
+                $('#imageError').text(message).show();
+                setTimeout(() => $('#imageError').fadeOut(), 5000);
+            }
+
+            function hideError() {
+                $('#imageError').hide();
+            }
+
+            // Form validation
+            $('#createForm').on('submit', function(e) {
+                if (!imageInput.value && !imagePreview.hasClass('show')) {
+                    e.preventDefault();
+                    showError('Please select an image for your artwork');
+                }
+            });
+
+            // Price validation
+            $('#Price').on('input', function() {
+                let value = parseFloat($(this).val());
+                if (value < 0) $(this).val(0);
+                if (value > 1000000) $(this).val(1000000);
+            });
+        });
+    </script>
+}
+
+<style>
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-header {
+        padding: 2rem 0 0;
+    }
+
+    .input-group {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .input-group-text {
+        border-radius: 15px 0 0 15px;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 0 15px 15px 0;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: #667eea;
+            background: #fff !important;
+        }
+
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 20px;
+        background: #f8f9fa;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8f0fe;
+            transform: scale(1.02);
+        }
+
+    .upload-icon {
+        font-size: 4rem;
+        color: #667eea;
+        opacity: 0.5;
+        transition: all 0.3s;
+    }
+
+    .upload-area:hover .upload-icon {
+        opacity: 1;
+        transform: translateY(-5px);
+    }
+
+    #imageFile {
+        display: none;
+    }
+
+    .preview-container {
+        display: none;
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+        .preview-container.show {
+            display: block;
+        }
+
+    .preview-image {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+    }
+
+    .remove-preview {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: all 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+
+    .btn-outline-secondary:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: transparent;
+        color: white;
+    }
+
+    .char-counter {
+        font-size: 0.9rem;
+        transition: color 0.3s;
+    }
+
+        .char-counter.text-danger {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+
+    @@media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem !important;
+        }
+
+        .input-group {
+            flex-wrap: wrap;
+        }
+
+        .input-group-text {
+            border-radius: 15px 15px 0 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0 0 15px 15px;
+        }
+    }
+</style>

@@ -2,6 +2,7 @@
 using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FodanArtistry.Application.Services
@@ -11,15 +12,18 @@ namespace FodanArtistry.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmailSender _emailSender;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _emailSender = emailSender;
         }
 
         public async Task<AuthResultDto> RegisterAsync(RegisterDto registerDto, CancellationToken cancellationToken = default)
@@ -28,15 +32,16 @@ namespace FodanArtistry.Application.Services
 
             try
             {
+                // Check if user already exists
                 var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
                 if (existingUser != null)
                 {
                     response.IsSuccess = false;
                     response.Message = "Email already registered";
-                    response.Errors = new[] { "Email already registered" };
                     return response;
                 }
 
+                // Create new user
                 var user = new ApplicationUser
                 {
                     UserName = registerDto.Email,
@@ -45,7 +50,7 @@ namespace FodanArtistry.Application.Services
                     LastName = registerDto.LastName,
                     PhoneNumber = registerDto.PhoneNumber,
                     Gender = registerDto.Gender,
-                    EmailConfirmed = true 
+                    EmailConfirmed = false /
                 };
 
                 var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -60,11 +65,15 @@ namespace FodanArtistry.Application.Services
 
                 await _userManager.AddToRoleAsync(user, "Customer");
 
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+
                 response.IsSuccess = true;
-                response.Message = "Registration successful!";
+                response.Message = "Registration successful! Please check your email to confirm your account.";
                 response.UserId = user.Id;
                 response.Email = user.Email;
-                response.Roles = new List<string> { "Customer" };
+                response.RequiresEmailConfirmation = true;
+
             }
             catch (Exception ex)
             {
@@ -141,8 +150,6 @@ namespace FodanArtistry.Application.Services
                 LastName = user.LastName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 PhoneNumber = user.PhoneNumber,
-                ProfilePicture = user.ProfilePicture,
-                DateJoined = user.CreatedAt ?? DateTime.UtcNow,
                 FavoriteCount = user.Favorites?.Count ?? 0,
                 OrderCount = user.Orders?.Count ?? 0,
                 Roles = roles.ToList()
@@ -158,7 +165,6 @@ namespace FodanArtistry.Application.Services
             user.FirstName = dto.FirstName ?? user.FirstName;
             user.LastName = dto.LastName ?? user.LastName;
             user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
-            user.ProfilePicture = dto.ProfilePicture ?? user.ProfilePicture;
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -201,12 +207,10 @@ namespace FodanArtistry.Application.Services
                     Email = user.Email ?? string.Empty,
                     PhoneNumber = user.PhoneNumber,
                     EmailConfirmed = user.EmailConfirmed,
-                    DateJoined = user.CreatedAt ?? DateTime.UtcNow,
                     Roles = roles.ToList(),
                     ArtworkCount = user.Artworks?.Count ?? 0,
                     OrderCount = user.Orders?.Count ?? 0,
                     IsActive = user.LockoutEnabled && user.LockoutEnd == null,
-                    ProfilePicture = user.ProfilePicture
                 });
             }
 

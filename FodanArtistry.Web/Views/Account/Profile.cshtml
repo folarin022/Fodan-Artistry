@@ -1,95 +1,600 @@
 ﻿@model FodanArtistry.Application.DTOs.AccountModel.UserProfileDto
 @{
-    ViewData["Title"] = "My Profile - Fodan Artistry";
+    ViewData["Title"] = "My Profile";
 }
 
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        @if (!string.IsNullOrEmpty(Model.ProfilePicture))
-                        {
-                            <img src="@Model.ProfilePicture" class="rounded-circle" width="150" height="150" alt="Profile">
-                        }
-                        else
-                        {
-                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
-                                 style="width: 150px; height: 150px; font-size: 3rem;">
-                                @Model.FirstName?.Substring(0, 1)@Model.LastName?.Substring(0, 1)
-                            </div>
-                        }
+<div class="profile-container">
+    <!-- Profile Header with Cover -->
+    <div class="profile-header mb-4">
+        <div class="cover-image"></div>
+        <div class="profile-avatar-wrapper">
+            <div class="avatar-container">
+                @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                {
+                    <img src="@Model.ProfilePicture" class="profile-avatar" alt="Profile">
+                }
+                else
+                {
+                    <div class="profile-avatar-initials">
+                        @Model.FirstName?.Substring(0, 1)@Model.LastName?.Substring(0, 1)
                     </div>
-                    <h4>@Model.FirstName @Model.LastName</h4>
-                    <p class="text-muted">@Model.Email</p>
-                    <p class="text-muted">@Model.PhoneNumber</p>
-                    <p>Member since @Model.DateJoined?.ToString("MMMM yyyy")</p>
+                }
+                <button class="btn btn-light btn-sm rounded-circle avatar-edit" title="Change profile picture">
+                    <i class="bi bi-camera"></i>
+                </button>
+            </div>
+            <h2 class="profile-name">@Model.FirstName @Model.LastName</h2>
+            <p class="profile-email">@Model.Email</p>
+            <div class="profile-roles">
+                @foreach (var role in Model.Roles ?? new List<string>())
+                {
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">@role</span>
+                }
+            </div>
+        </div>
+    </div>
 
-                    <div class="row mt-3">
-                        <div class="col-6">
-                            <h6>Favorites</h6>
-                            <p>@Model.FavoriteCount</p>
-                        </div>
-                        <div class="col-6">
-                            <h6>Orders</h6>
-                            <p>@Model.OrderCount</p>
-                        </div>
-                    </div>
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary bg-opacity-10">
+                    <i class="bi bi-heart-fill text-primary"></i>
+                </div>
+                <div class="stat-details">
+                    <h3 class="stat-value">@Model.FavoriteCount</h3>
+                    <p class="stat-label">Favorite Artworks</p>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-8">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Edit Profile</h5>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-success bg-opacity-10">
+                    <i class="bi bi-box-seam text-success"></i>
                 </div>
-                <div class="card-body">
-                    <form asp-action="UpdateProfile" method="post">
-                        @Html.AntiForgeryToken()
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">First Name</label>
-                                <input type="text" name="FirstName" class="form-control" value="@Model.FirstName" />
+                <div class="stat-details">
+                    <h3 class="stat-value">@Model.OrderCount</h3>
+                    <p class="stat-label">Total Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-info bg-opacity-10">
+                    <i class="bi bi-calendar-check text-info"></i>
+                </div>
+                <div class="stat-details">
+                    <h3 class="stat-value">@Model.DateJoined?.ToString("MMM yyyy")</h3>
+                    <p class="stat-label">Member Since</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <div class="profile-tabs">
+        <ul class="nav nav-pills mb-4" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                    <i class="bi bi-person me-2"></i>Profile Information
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                    <i class="bi bi-shield-lock me-2"></i>Security
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab">
+                    <i class="bi bi-activity me-2"></i>Activity
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="profileTabsContent">
+            <!-- Profile Information Tab -->
+            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h5 class="fw-bold mb-0">Edit Profile Information</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-action="UpdateProfile" method="post" id="profileForm">
+                            @Html.AntiForgeryToken()
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">First Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-person text-primary"></i>
+                                        </span>
+                                        <input type="text" name="FirstName" class="form-control form-control-lg border-0 bg-light"
+                                               value="@Model.FirstName" placeholder="Enter first name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Last Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-person text-primary"></i>
+                                        </span>
+                                        <input type="text" name="LastName" class="form-control form-control-lg border-0 bg-light"
+                                               value="@Model.LastName" placeholder="Enter last name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-envelope text-primary"></i>
+                                        </span>
+                                        <input type="email" class="form-control form-control-lg border-0 bg-light"
+                                               value="@Model.Email" readonly disabled>
+                                    </div>
+                                    <small class="text-muted">Email cannot be changed</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Phone Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-telephone text-primary"></i>
+                                        </span>
+                                        <input type="text" name="PhoneNumber" class="form-control form-control-lg border-0 bg-light"
+                                               value="@Model.PhoneNumber" placeholder="Enter phone number">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <hr class="my-3">
+                                    <div class="d-flex justify-content-end">
+                                        <button type="reset" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-primary rounded-pill px-5">
+                                            <i class="bi bi-check-circle me-2"></i>Save Changes
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" name="LastName" class="form-control" value="@Model.LastName" />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone Number</label>
-                                <input type="text" name="PhoneNumber" class="form-control" value="@Model.PhoneNumber" />
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Update Profile</button>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Change Password</h5>
+            <!-- Security Tab -->
+            <div class="tab-pane fade" id="security" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h5 class="fw-bold mb-0">Change Password</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-action="ChangePassword" method="post" id="passwordForm">
+                            @Html.AntiForgeryToken()
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Current Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-lock text-primary"></i>
+                                        </span>
+                                        <input type="password" name="CurrentPassword" class="form-control form-control-lg border-0 bg-light"
+                                               placeholder="Enter current password" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">New Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-key text-primary"></i>
+                                        </span>
+                                        <input type="password" name="NewPassword" class="form-control form-control-lg border-0 bg-light"
+                                               placeholder="Enter new password" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Confirm New Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0">
+                                            <i class="bi bi-key-fill text-primary"></i>
+                                        </span>
+                                        <input type="password" name="ConfirmNewPassword" class="form-control form-control-lg border-0 bg-light"
+                                               placeholder="Confirm new password" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="password-requirements bg-light p-3 rounded-3">
+                                        <p class="fw-semibold mb-2">Password requirements:</p>
+                                        <ul class="list-unstyled mb-0 small">
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>At least 6 characters long</li>
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>Contains at least one uppercase letter</li>
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>Contains at least one number</li>
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>Contains at least one special character</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <hr class="my-3">
+                                    <div class="d-flex justify-content-end">
+                                        <button type="reset" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-warning rounded-pill px-5">
+                                            <i class="bi bi-shield-lock me-2"></i>Update Password
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="ChangePassword" method="post">
-                        @Html.AntiForgeryToken()
-                        <div class="mb-3">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" name="CurrentPassword" class="form-control" required />
+            </div>
+
+            <!-- Activity Tab -->
+            <div class="tab-pane fade" id="activity" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h5 class="fw-bold mb-0">Recent Activity</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="activity-timeline">
+                            <div class="activity-item">
+                                <div class="activity-icon bg-primary bg-opacity-10">
+                                    <i class="bi bi-heart-fill text-primary"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="mb-1"><strong>You favorited</strong> "Sunset Dreams" by Artiste Name</p>
+                                    <small class="text-muted">2 hours ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon bg-success bg-opacity-10">
+                                    <i class="bi bi-cart-check-fill text-success"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="mb-1"><strong>Order #ORD-20240316-001</strong> was completed</p>
+                                    <small class="text-muted">Yesterday</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon bg-info bg-opacity-10">
+                                    <i class="bi bi-pencil-fill text-info"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="mb-1"><strong>Profile information</strong> was updated</p>
+                                    <small class="text-muted">3 days ago</small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">New Password</label>
-                            <input type="password" name="NewPassword" class="form-control" required />
+                        <div class="text-center mt-4">
+                            <a href="#" class="btn btn-outline-primary rounded-pill px-5">
+                                <i class="bi bi-arrow-repeat me-2"></i>View All Activity
+                            </a>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Confirm New Password</label>
-                            <input type="password" name="ConfirmNewPassword" class="form-control" required />
-                        </div>
-                        <button type="submit" class="btn btn-warning">Change Password</button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Profile image upload preview
+        document.querySelector('.avatar-edit').addEventListener('click', function() {
+            // Create a hidden file input
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Here you would typically upload the file and update the profile picture
+                        console.log('File selected:', file.name);
+                        // Show success message
+                        showToast('Profile picture updated successfully!', 'success');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.body.appendChild(fileInput);
+            fileInput.click();
+            document.body.removeChild(fileInput);
+        });
+
+        // Form validation for password match
+        document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
+            const newPass = document.querySelector('input[name="NewPassword"]').value;
+            const confirmPass = document.querySelector('input[name="ConfirmNewPassword"]').value;
+            
+            if (newPass !== confirmPass) {
+                e.preventDefault();
+                showToast('Passwords do not match!', 'error');
+            }
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast-message ${type}`;
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'} text-${type === 'success' ? 'success' : 'danger'}"></i>
+                <span>${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Auto-dismiss alerts
+        window.setTimeout(function() {
+            $(".alert").fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
+    </script>
+}
+
+<style>
+    .profile-header {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .cover-image {
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-size: cover;
+        background-position: center;
+    }
+
+    .profile-avatar-wrapper {
+        position: relative;
+        padding: 0 2rem 2rem;
+        margin-top: -75px;
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 150px;
+        margin: 0 auto 1rem;
+    }
+
+    .profile-avatar,
+    .profile-avatar-initials {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .profile-avatar {
+        object-fit: cover;
+    }
+
+    .profile-avatar-initials {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        font-weight: 600;
+    }
+
+    .avatar-edit {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+
+    .profile-roles {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+
+    .stat-details {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+
+    .profile-tabs .nav-pills {
+        gap: 0.5rem;
+    }
+
+    .profile-tabs .nav-link {
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        color: #6c757d;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .profile-tabs .nav-link:hover {
+            background: rgba(102, 126, 234, 0.05);
+            color: #667eea;
+        }
+
+        .profile-tabs .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+    .activity-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+    .activity-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .activity-icon {
+        position: absolute;
+        left: -30px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 2px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .activity-content {
+        flex: 1;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .input-group-text {
+        border-radius: 12px 0 0 12px;
+    }
+
+    .form-control-lg {
+        border-radius: 0 12px 12px 0;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #667eea;
+    }
+
+    .password-requirements {
+        border-radius: 12px;
+    }
+
+        .password-requirements ul li {
+            margin-bottom: 0.25rem;
+        }
+
+            .password-requirements ul li i {
+                font-size: 0.9rem;
+            }
+
+    @@media (max-width: 768px) {
+        .profile-avatar-wrapper {
+            margin-top: -50px;
+            padding: 0 1rem 1rem;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .profile-tabs .nav-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>

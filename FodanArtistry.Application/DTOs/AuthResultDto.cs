@@ -10,5 +10,6 @@ namespace FodanArtistry.Application.DTOs.AccountModel
         public string? Email { get; set; }
         public List<string>? Roles { get; set; }
         public IEnumerable<string>? Errors { get; set; }
+        public bool RequiresEmailConfirmation { get; internal set; }
     }
 }

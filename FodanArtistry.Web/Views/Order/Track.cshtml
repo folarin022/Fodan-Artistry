@@ -1,0 +1,99 @@
+﻿@model FodanArtistry.Application.DTOs.OrderModel.OrderDto
+@{
+    ViewData["Title"] = $"Track Order #{Model.OrderNumber} - Fodan Artistry";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Track Order #@Model.OrderNumber</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Order Status Timeline -->
+                    <div class="position-relative mb-5">
+                        <div class="progress" style="height: 3px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: @(Model.Status == "Pending" ? "25%" :
+                                                                                                                Model.Status == "Processing" ? "50%" :
+                                                                                                                Model.Status == "Shipped" ? "75%" :
+                                                                                                                Model.Status == "Delivered" ? "100%" : "25%")">
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-@(Model.Status != "Cancelled" ? "success" : "secondary") text-white d-inline-flex align-items-center justify-content-center mb-2"
+                                     style="width: 30px; height: 30px;">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <p class="small mb-0">Pending</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-@(Model.Status == "Processing" || Model.Status == "Shipped" || Model.Status == "Delivered" ? "success" : "light") text-white d-inline-flex align-items-center justify-content-center mb-2"
+                                     style="width: 30px; height: 30px;">
+                                    @if (Model.Status == "Processing" || Model.Status == "Shipped" || Model.Status == "Delivered")
+                                    {
+                                        <i class="bi bi-check"></i>
+                                    }
+                                </div>
+                                <p class="small mb-0">Processing</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-@(Model.Status == "Shipped" || Model.Status == "Delivered" ? "success" : "light") text-white d-inline-flex align-items-center justify-content-center mb-2"
+                                     style="width: 30px; height: 30px;">
+                                    @if (Model.Status == "Shipped" || Model.Status == "Delivered")
+                                    {
+                                        <i class="bi bi-check"></i>
+                                    }
+                                </div>
+                                <p class="small mb-0">Shipped</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-@(Model.Status == "Delivered" ? "success" : "light") text-white d-inline-flex align-items-center justify-content-center mb-2"
+                                     style="width: 30px; height: 30px;">
+                                    @if (Model.Status == "Delivered")
+                                    {
+                                        <i class="bi bi-check"></i>
+                                    }
+                                </div>
+                                <p class="small mb-0">Delivered</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6>Order Information</h6>
+                            <p class="mb-1"><strong>Order #:</strong> @Model.OrderNumber</p>
+                            <p class="mb-1"><strong>Date:</strong> @Model.OrderDate.ToString("MMMM dd, yyyy")</p>
+                            <p class="mb-1">
+                                <strong>Status:</strong>
+                                <span class="badge bg-@Model.StatusColor">@Model.Status</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6>Delivery Information</h6>
+                            @if (!string.IsNullOrEmpty(Model.ShippingAddress))
+                            {
+                                <p class="mb-1">@Model.ShippingAddress</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No shipping address provided</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                            <i class="bi bi-info-circle"></i> View Full Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
