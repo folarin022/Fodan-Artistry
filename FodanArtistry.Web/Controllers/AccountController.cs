@@ -54,8 +54,35 @@ namespace FodanArtistry.Web.Controllers
 
                     await _emailSender.SendEmailAsync(
                         user.Email,
-                        user.FirstName,
-                        confirmationLink
+                        "Confirm your email - Fodan Artistry",
+                        $@"
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <style>
+                                body {{ font-family: Arial, sans-serif; }}
+                                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }}
+                                .content {{ padding: 30px; }}
+                                .button {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 12px 30px; border-radius: 25px; }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>
+                                    <h1>Welcome to Fodan Artistry! 🎨</h1>
+                                </div>
+                                <div class='content'>
+                                    <h2>Hello {user.FirstName},</h2>
+                                    <p>Please confirm your email address by clicking the button below:</p>
+                                    <div style='text-align: center;'>
+                                        <a href='{confirmationLink}' class='button'>Confirm Email</a>
+                                    </div>
+                                    <p>This link will expire in 24 hours.</p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>"  
                     );
                 }
 

@@ -33,6 +33,15 @@ namespace FodanArtistry.Infrastructure.Services
         {
             try
             {
+                // Log what we're about to do
+                Console.WriteLine($"=== ATTEMPTING TO SEND EMAIL ===");
+                Console.WriteLine($"Host: {_configuration["EmailSettings:Host"]}");
+                Console.WriteLine($"Port: {_configuration["EmailSettings:Port"]}");
+                Console.WriteLine($"Username: {_configuration["EmailSettings:Username"]}");
+                Console.WriteLine($"Password length: {_configuration["EmailSettings:Password"]?.Length ?? 0}");
+                Console.WriteLine($"To: {email}");
+                Console.WriteLine($"Subject: {subject}");
+
                 var smtpClient = new SmtpClient(_configuration["EmailSettings:Host"])
                 {
                     Port = int.Parse(_configuration["EmailSettings:Port"]),
@@ -40,9 +49,9 @@ namespace FodanArtistry.Infrastructure.Services
                         _configuration["EmailSettings:Username"],
                         _configuration["EmailSettings:Password"]
                     ),
-                    EnableSsl = true,  // ← MUST be true for Gmail
+                    EnableSsl = true,
                     DeliveryMethod = SmtpDeliveryMethod.Network,
-                    UseDefaultCredentials = false  
+                    UseDefaultCredentials = false,
                 };
 
                 var mailMessage = new MailMessage
@@ -57,13 +66,22 @@ namespace FodanArtistry.Infrastructure.Services
                 };
                 mailMessage.To.Add(email);
 
+                Console.WriteLine("Attempting to send...");
                 await smtpClient.SendMailAsync(mailMessage);
+                Console.WriteLine("Email sent successfully!");
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine($"SMTP ERROR: {smtpEx.Message}");
+                Console.WriteLine($"Status Code: {smtpEx.StatusCode}");
+                if (smtpEx.InnerException != null)
+                    Console.WriteLine($"Inner: {smtpEx.InnerException.Message}");
+                throw;
             }
             catch (Exception ex)
             {
-                // Log the error
-                Console.WriteLine($"Email sending failed: {ex.Message}");
-                throw; // Re-throw to see the error
+                Console.WriteLine($"GENERAL ERROR: {ex.Message}");
+                throw;
             }
         }
     }

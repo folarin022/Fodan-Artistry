@@ -31,7 +31,6 @@ namespace FodanArtistry.Application.Services
 
             try
             {
-                // Check if user already exists
                 var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
                 if (existingUser != null)
                 {
@@ -40,7 +39,6 @@ namespace FodanArtistry.Application.Services
                     return response;
                 }
 
-                // Create new user
                 var user = new ApplicationUser
                 {
                     UserName = registerDto.Email,
