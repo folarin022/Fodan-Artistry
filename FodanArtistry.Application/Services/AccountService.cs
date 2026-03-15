@@ -2,7 +2,6 @@
 using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FodanArtistry.Application.Services
@@ -12,12 +11,12 @@ namespace FodanArtistry.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IEmailSender _emailSender;
+        private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender,
+            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
@@ -50,7 +49,7 @@ namespace FodanArtistry.Application.Services
                     LastName = registerDto.LastName,
                     PhoneNumber = registerDto.PhoneNumber,
                     Gender = registerDto.Gender,
-                    EmailConfirmed = false /
+                    EmailConfirmed = false 
                 };
 
                 var result = await _userManager.CreateAsync(user, registerDto.Password);

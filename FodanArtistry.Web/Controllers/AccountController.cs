@@ -1,19 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+﻿using FodanArtistry.Application.DTOs.AccountModel;
 using FodanArtistry.Application.Interfaces;
-using FodanArtistry.Application.DTOs.AccountModel;
+using FodanArtistry.Domain.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FodanArtistry.Web.Controllers
 {
+
     public class AccountController : Controller
     {
         private readonly IAccountService _accountService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly Microsoft.AspNetCore.Identity.UI.Services. IEmailSender _emailSender;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(
+            IAccountService accountService,
+            UserManager<ApplicationUser> userManager,
+            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender) 
         {
             _accountService = accountService;
+            _userManager = userManager;
+            _emailSender = emailSender;
         }
+
 
         [HttpGet]
         public IActionResult Register() => View(new RegisterDto());
@@ -22,19 +33,70 @@ namespace FodanArtistry.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterDto dto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid) return View(dto);
+            if (!ModelState.IsValid)
+                return View(dto);
 
             var result = await _accountService.RegisterAsync(dto, cancellationToken);
+
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Registration successful! Please log in.";
-                return RedirectToAction(nameof(Login));
+                var user = await _userManager.FindByEmailAsync(dto.Email);
+
+                if (user != null)
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    var confirmationLink = Url.Action(
+                        "ConfirmEmail",
+                        "Account",
+                        new { userId = user.Id, token = token },
+                        protocol: HttpContext.Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(
+                        user.Email,
+                        user.FirstName,
+                        confirmationLink
+                    );
+                }
+
+                TempData["SuccessMessage"] = "Registration successful! Please check your email to confirm your account.";
+                return RedirectToAction("Login", "Account");
             }
 
             foreach (var error in result.Errors ?? new[] { result.Message })
+            {
                 ModelState.AddModelError("", error);
+            }
 
             return View(dto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"Unable to find user");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Email confirmed successfully! You can now log in.";
+                return View("EmailConfirmed");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Error confirming your email. The link may have expired.";
+                return View("Error");
+            }
         }
 
         [HttpGet]
