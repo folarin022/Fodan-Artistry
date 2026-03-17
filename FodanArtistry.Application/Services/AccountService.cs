@@ -49,6 +49,12 @@ namespace FodanArtistry.Application.Services
                     Gender = registerDto.Gender,
                     EmailConfirmed = false 
                 };
+                if (!IsValidEmail(registerDto.Email))
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Please enter a valid email address";
+                    return response;
+                }
 
                 var result = await _userManager.CreateAsync(user, registerDto.Password);
 
@@ -61,14 +67,10 @@ namespace FodanArtistry.Application.Services
                 }
 
                 await _userManager.AddToRoleAsync(user, "Customer");
-
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-
+                
                 response.IsSuccess = true;
                 response.Message = "Registration successful! Please check your email to confirm your account.";
                 response.UserId = user.Id;
-                response.Email = user.Email;
                 response.RequiresEmailConfirmation = true;
 
             }
@@ -80,6 +82,22 @@ namespace FodanArtistry.Application.Services
             }
 
             return response;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<AuthResultDto> LoginAsync(LoginDto loginDto, CancellationToken cancellationToken = default)

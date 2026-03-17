@@ -1,0 +1,383 @@
+﻿@model FodanArtistry.Application.DTOs.VerifyEmailDto
+@{
+    Layout = null;
+    ViewData["Title"] = "Verify Your Email";
+    var email = Model?.Email ?? ViewBag.Email as string;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Fodan Artistry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .verify-card {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            animation: slideUp 0.5s ease;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .email-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .email-text {
+            font-weight: 600;
+            color: #2d3748;
+            word-break: break-all;
+        }
+
+        .timer-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .timer-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            transition: all 0.3s;
+            background: white;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.2);
+        }
+
+        #timerDisplay {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .code-input {
+            font-size: 2rem;
+            letter-spacing: 0.5rem;
+            font-weight: 600;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .code-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+            background: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        .help-link {
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            background: #f8f9fa;
+        }
+
+        .help-link:hover {
+            color: #667eea;
+            background: #e9ecef;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+
+        @@media (max-width: 768px) {
+            .verify-card {
+                padding: 1.5rem;
+            }
+            
+            .code-input {
+                font-size: 1.5rem;
+                letter-spacing: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    @if (TempData["VerificationCode"] != null)
+{
+    <div class="alert alert-info text-center" style="background: #e8f4fd; border: 2px dashed #3498db; padding: 20px; margin-bottom: 20px;">
+        <h5 class="mb-3">🔵 DEVELOPMENT MODE</h5>
+        <p class="mb-2">Your verification code is:</p>
+        <div style="font-size: 48px; font-weight: bold; letter-spacing: 10px; color: #3498db; background: white; padding: 15px; border-radius: 10px; display: inline-block;">
+            @TempData["VerificationCode"]
+        </div>
+        <p class="mt-3 text-muted">This code was sent to: @TempData["VerificationEmail"]</p>
+        <p class="small text-warning">⚠️ Remove this after testing</p>
+    </div>
+}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="verify-card">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <h1 class="display-5 fw-bold gradient-text mb-2">Verify Your Email</h1>
+                        <p class="text-muted">Please enter the 6-digit code sent to your email</p>
+                    </div>
+
+                    <!-- Email Display -->
+                    <div class="email-display">
+                        <i class="bi bi-envelope-fill text-primary fs-4"></i>
+                        <span class="email-text">@email</span>
+                        <button class="btn btn-sm btn-link ms-auto" onclick="copyEmail()">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    @if (TempData["DebugCode"] != null)
+{
+    <div class="alert alert-info">
+        <strong>DEBUG MODE - Your code is: @TempData["DebugCode"]</strong>
+        <p>This was sent to: @TempData["DebugEmail"]</p>
+    </div>
+}
+
+                    <!-- Timer -->
+                    <div class="timer-section">
+                        <div class="timer-circle" id="timerCircle">
+                            <span id="timerDisplay">10:00</span>
+                        </div>
+                        <p class="timer-text mb-0">Code expires in <span id="timerMinutes">10</span> minutes</p>
+                    </div>
+
+                    <!-- Form -->
+                    <form asp-action="VerifyEmail" method="post" id="verifyForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Email" value="@email" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                        <!-- Code Input -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Enter 6-Digit Code</label>
+                            <input asp-for="Code" 
+                                   class="form-control code-input" 
+                                   placeholder="• • • • • •"
+                                   maxlength="6"
+                                   autocomplete="off"
+                                   pattern="\d*"
+                                   inputmode="numeric" />
+                            <span asp-validation-for="Code" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Check your spam folder if you don't see the email
+                            </small>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg" id="verifyBtn">
+                                <i class="bi bi-check-circle me-2"></i>Verify Email
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-primary btn-lg" id="resendBtn" onclick="resendCode()">
+                                <i class="bi bi-arrow-repeat me-2"></i>Resend Code
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Help -->
+                    <div class="mt-4 text-center">
+                        <p class="mb-2">Didn't receive the code?</p>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <span class="help-link" onclick="checkSpam()">
+                                <i class="bi bi-exclamation-triangle me-1"></i>Spam folder
+                            </span>
+                            <span class="help-link" onclick="contactSupport()">
+                                <i class="bi bi-headset me-1"></i>Support
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="resendSuccessModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-5">
+                    <i class="bi bi-check-circle-fill text-success display-1 mb-4"></i>
+                    <h4 class="fw-bold mb-3">Code Resent!</h4>
+                    <p class="text-muted mb-4">A new verification code has been sent to your email.</p>
+                    <button type="button" class="btn btn-primary px-5" data-bs-dismiss="modal">
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    
+    <script>
+        let timerInterval;
+        let timeLeft = 600;
+
+        function startTimer() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerMinutes = document.getElementById('timerMinutes');
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerMinutes.textContent = minutes;
+                
+                const timerCircle = document.getElementById('timerCircle');
+                if (timeLeft < 120) {
+                    timerCircle.style.borderColor = '#dc3545';
+                    timerDisplay.style.color = '#dc3545';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = '00:00';
+                    timerCircle.style.borderColor = '#dc3545';
+                    timerDisplay.style.color = '#dc3545';
+                    document.getElementById('verifyBtn').disabled = true;
+                }
+            }, 1000);
+        }
+
+        function resendCode() {
+            const btn = document.getElementById('resendBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+            btn.disabled = true;
+            
+            fetch('@Url.Action("ResendVerificationCode", "Account")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ email: '@email' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    timeLeft = 600;
+                    startTimer();
+                    new bootstrap.Modal(document.getElementById('resendSuccessModal')).show();
+                } else {
+                    alert(data.message || 'Failed to resend code');
+                }
+            })
+            .catch(() => alert('An error occurred'))
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function checkSpam() {
+            alert('Please check your spam/junk folder. Mark our emails as "Not Spam" to ensure future delivery.');
+        }
+
+        function contactSupport() {
+            window.location.href = 'mailto:support@fodanartistry.com?subject=Verification%20Issue&body=Email:%20@email';
+        }
+
+        function copyEmail() {
+            navigator.clipboard.writeText('@email');
+            alert('Email copied to clipboard!');
+        }
+
+        // Auto-submit when 6 digits entered
+        document.querySelector('.code-input')?.addEventListener('input', function(e) {
+            if (this.value.length === 6) {
+                document.getElementById('verifyForm').submit();
+            }
+        });
+
+        // Start timer
+        document.addEventListener('DOMContentLoaded', startTimer);
+
+        // Clean up
+        window.addEventListener('beforeunload', () => clearInterval(timerInterval));
+    </script>
+</body>
+</html>

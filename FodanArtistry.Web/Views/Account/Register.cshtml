@@ -59,6 +59,9 @@
             text-align: center;
             margin-top: 1rem;
         }
+        .field-validation-error {
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -87,13 +90,14 @@
 
             <div class="mb-3">
                 <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" type="email" />
+                <input asp-for="Email" class="form-control" type="email" placeholder="name@example.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
+                <small class="text-muted">We'll send a verification code to this email</small>
             </div>
 
             <div class="mb-3">
                 <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
-                <input asp-for="PhoneNumber" class="form-control" />
+                <input asp-for="PhoneNumber" class="form-control" placeholder="08012345678" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
 

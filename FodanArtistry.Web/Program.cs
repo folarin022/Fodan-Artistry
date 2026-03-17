@@ -4,8 +4,8 @@ using FodanArtistry.Domain.Data;
 using FodanArtistry.Infrastructure.Context;
 using FodanArtistry.Infrastructure.Repositories;
 using FodanArtistry.Infrastructure.Repository;
-using FodanArtistry.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +17,7 @@ builder.Services.AddDbContext<FodanArtistryDbContext>(options =>
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
     options.SignIn.RequireConfirmedEmail = true;
     options.SignIn.RequireConfirmedPhoneNumber = false;
     options.Password.RequireDigit = true;
@@ -30,18 +30,16 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     .AddEntityFrameworkStores<FodanArtistryDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
-{
+{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ReturnUrlParameter = "returnUrl";
 });
 
-// ===== EMAIL SERVICES =====
-builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>(); // ← Microsoft's IEmailSender (ONLY ONE!)
 
 // ===== REPOSITORIES =====
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IFavoriteRepository, FavouriteRepository>();

@@ -1,4 +1,6 @@
-﻿using FodanArtistry.Application.DTOs.AccountModel;
+﻿using FodanArtistry.Application;
+using FodanArtistry.Application.DTOs;
+using FodanArtistry.Application.DTOs.AccountModel;
 using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -13,16 +15,13 @@ namespace FodanArtistry.Web.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly Microsoft.AspNetCore.Identity.UI.Services. IEmailSender _emailSender;
 
         public AccountController(
             IAccountService accountService,
-            UserManager<ApplicationUser> userManager,
-            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender) 
+            UserManager<ApplicationUser> userManager) 
         {
             _accountService = accountService;
             _userManager = userManager;
-            _emailSender = emailSender;
         }
 
 
@@ -44,50 +43,19 @@ namespace FodanArtistry.Web.Controllers
 
                 if (user != null)
                 {
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    // Generate 6-digit code
+                    var code = new Random().Next(100000, 999999).ToString();
+                    user.EmailVerificationCode = code;
+                    user.CodeExpiryTime = DateTime.UtcNow.AddMinutes(10);
+                    await _userManager.UpdateAsync(user);
 
-                    var confirmationLink = Url.Action(
-                        "ConfirmEmail",
-                        "Account",
-                        new { userId = user.Id, token = token },
-                        protocol: HttpContext.Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(
-                        user.Email,
-                        "Confirm your email - Fodan Artistry",
-                        $@"
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <style>
-                                body {{ font-family: Arial, sans-serif; }}
-                                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }}
-                                .content {{ padding: 30px; }}
-                                .button {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 12px 30px; border-radius: 25px; }}
-                            </style>
-                        </head>
-                        <body>
-                            <div class='container'>
-                                <div class='header'>
-                                    <h1>Welcome to Fodan Artistry! 🎨</h1>
-                                </div>
-                                <div class='content'>
-                                    <h2>Hello {user.FirstName},</h2>
-                                    <p>Please confirm your email address by clicking the button below:</p>
-                                    <div style='text-align: center;'>
-                                        <a href='{confirmationLink}' class='button'>Confirm Email</a>
-                                    </div>
-                                    <p>This link will expire in 24 hours.</p>
-                                </div>
-                            </div>
-                        </body>
-                        </html>"  
-                    );
+                    // ✅ NO EMAIL SENDING! Just store code in TempData
+                    TempData["VerificationCode"] = code;
+                    TempData["VerificationEmail"] = user.Email;
                 }
 
-                TempData["SuccessMessage"] = "Registration successful! Please check your email to confirm your account.";
-                return RedirectToAction("Login", "Account");
+                TempData["SuccessMessage"] = "Registration successful! Use the code below to verify your email.";
+                return RedirectToAction("VerifyEmail", new { email = dto.Email });
             }
 
             foreach (var error in result.Errors ?? new[] { result.Message })
@@ -98,34 +66,43 @@ namespace FodanArtistry.Web.Controllers
             return View(dto);
         }
 
+
+
         [HttpGet]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        public IActionResult VerifyEmail(string email)
         {
-            if (userId == null || token == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound($"Unable to find user");
-            }
-
-            var result = await _userManager.ConfirmEmailAsync(user, token);
-
-            if (result.Succeeded)
-            {
-                TempData["SuccessMessage"] = "Email confirmed successfully! You can now log in.";
-                return View("EmailConfirmed");
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Error confirming your email. The link may have expired.";
-                return View("Error");
-            }
+            return View(new VerifyEmailDto { Email = email });
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+
+            if (user == null)
+                return NotFound();
+
+            if (user.CodeExpiryTime < DateTime.UtcNow)
+            {
+                ModelState.AddModelError("", "Code expired");
+                return View(dto);
+            }
+
+            if (user.EmailVerificationCode != dto.Code)
+            {
+                ModelState.AddModelError("", "Invalid code");
+                return View(dto);
+            }
+
+            user.EmailConfirmed = true;
+            user.EmailVerificationCode = null;
+
+            await _userManager.UpdateAsync(user);
+
+            TempData["SuccessMessage"] = "Email verified!";
+            return RedirectToAction("Login");
+        }
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
