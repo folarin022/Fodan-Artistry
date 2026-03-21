@@ -43,13 +43,12 @@ namespace FodanArtistry.Web.Controllers
 
                 if (user != null)
                 {
-                    // Generate 6-digit code
                     var code = new Random().Next(100000, 999999).ToString();
                     user.EmailVerificationCode = code;
                     user.CodeExpiryTime = DateTime.UtcNow.AddMinutes(10);
+                    user.IsArtistRequested = dto.IsArtistRequested;
                     await _userManager.UpdateAsync(user);
 
-                    // ✅ NO EMAIL SENDING! Just store code in TempData
                     TempData["VerificationCode"] = code;
                     TempData["VerificationEmail"] = user.Email;
                 }
@@ -99,6 +98,10 @@ namespace FodanArtistry.Web.Controllers
             user.EmailVerificationCode = null;
 
             await _userManager.UpdateAsync(user);
+            if (user.IsArtistRequested)
+            {
+                return RedirectToAction("Subscribe", "Payment", new { userId = user.Id });
+            }
 
             TempData["SuccessMessage"] = "Email verified!";
             return RedirectToAction("Login");

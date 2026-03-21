@@ -39,7 +39,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
 // ===== REPOSITORIES =====
-builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IFavoriteRepository, FavouriteRepository>();

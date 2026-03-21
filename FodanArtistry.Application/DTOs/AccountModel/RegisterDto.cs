@@ -11,7 +11,7 @@ namespace FodanArtistry.Application.DTOs.AccountModel
         public string LastName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address")]  // ✅ THIS IS KEY!
+        [EmailAddress(ErrorMessage = "Please enter a valid email address")] 
         [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format")]
         public string Email { get; set; } = string.Empty;
 
@@ -23,6 +23,7 @@ namespace FodanArtistry.Application.DTOs.AccountModel
         public string ConfirmPassword { get; set; } = string.Empty;
 
         public string? Gender { get; set; }
+        public bool IsArtistRequested { get; set; } = false;
 
         [Phone(ErrorMessage = "Invalid phone number")]
         public string? PhoneNumber { get; set; }

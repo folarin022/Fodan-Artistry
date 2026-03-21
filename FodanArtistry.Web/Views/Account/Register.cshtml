@@ -123,6 +123,13 @@
                     <option value="Other">Other</option>
                 </select>
             </div>
+            <div class="mb-3 form-check">
+                <input asp-for="IsArtistRequested" class="form-check-input" type="checkbox" />
+                <label asp-for="IsArtistRequested" class="form-check-label">
+                    I want to become an artist (₦5,000 subscription)
+                </label>
+                <span asp-validation-for="IsArtistRequested" class="text-danger"></span>
+            </div>
 
             <button type="submit" class="btn-register">
                 <i class="bi bi-person-plus"></i> Register

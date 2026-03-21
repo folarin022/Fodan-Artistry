@@ -11,18 +11,15 @@ namespace FodanArtistry.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _emailSender = emailSender;
         }
 
         public async Task<AuthResultDto> RegisterAsync(RegisterDto registerDto, CancellationToken cancellationToken = default)
