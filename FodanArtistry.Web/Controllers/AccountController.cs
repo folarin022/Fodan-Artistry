@@ -5,6 +5,7 @@ using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -15,13 +16,16 @@ namespace FodanArtistry.Web.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailSender _emailSender;
 
         public AccountController(
             IAccountService accountService,
-            UserManager<ApplicationUser> userManager) 
+            UserManager<ApplicationUser> userManager,
+            IEmailSender emailSender) 
         {
             _accountService = accountService;
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
 
@@ -36,31 +40,34 @@ namespace FodanArtistry.Web.Controllers
                 return View(dto);
 
             var result = await _accountService.RegisterAsync(dto, cancellationToken);
-
             if (result.IsSuccess)
             {
                 var user = await _userManager.FindByEmailAsync(dto.Email);
-
                 if (user != null)
                 {
                     var code = new Random().Next(100000, 999999).ToString();
                     user.EmailVerificationCode = code;
                     user.CodeExpiryTime = DateTime.UtcNow.AddMinutes(10);
-                    user.IsArtistRequested = dto.IsArtistRequested;
                     await _userManager.UpdateAsync(user);
 
-                    TempData["VerificationCode"] = code;
-                    TempData["VerificationEmail"] = user.Email;
+                    await _emailSender.SendEmailAsync(
+                        user.Email,
+                        "Verify your email",
+                        $@"
+                <h2>Hello {user.FirstName},</h2>
+                <p>Your verification code is: <strong>{code}</strong></p>
+                <p>This code expires in 10 minutes.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+                "
+                    );
                 }
 
-                TempData["SuccessMessage"] = "Registration successful! Use the code below to verify your email.";
+                TempData["SuccessMessage"] = "Registration successful! Check your email for the verification code.";
                 return RedirectToAction("VerifyEmail", new { email = dto.Email });
             }
 
             foreach (var error in result.Errors ?? new[] { result.Message })
-            {
                 ModelState.AddModelError("", error);
-            }
 
             return View(dto);
         }
@@ -78,7 +85,6 @@ namespace FodanArtistry.Web.Controllers
         public async Task<IActionResult> VerifyEmail(VerifyEmailDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
-
             if (user == null)
                 return NotFound();
 
@@ -96,16 +102,13 @@ namespace FodanArtistry.Web.Controllers
 
             user.EmailConfirmed = true;
             user.EmailVerificationCode = null;
-
             await _userManager.UpdateAsync(user);
-            if (user.IsArtistRequested)
-            {
-                return RedirectToAction("Subscribe", "Payment", new { userId = user.Id });
-            }
 
-            TempData["SuccessMessage"] = "Email verified!";
+            TempData["SuccessMessage"] = "Email verified! You can now log in.";
             return RedirectToAction("Login");
         }
+
+
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
