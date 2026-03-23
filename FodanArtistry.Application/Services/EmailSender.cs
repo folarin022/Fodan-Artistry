@@ -16,6 +16,8 @@ namespace FodanArtistry.Application.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             var host = _configuration["EmailSettings:Host"];
             var port = int.Parse(_configuration["EmailSettings:Port"]);
             var username = _configuration["EmailSettings:Username"];
@@ -28,7 +30,8 @@ namespace FodanArtistry.Application.Services
                 Credentials = new NetworkCredential(username, password),
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false
+                UseDefaultCredentials = false,
+                Timeout = 30000
             };
 
             var mailMessage = new MailMessage

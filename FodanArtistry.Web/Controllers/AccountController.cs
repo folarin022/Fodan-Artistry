@@ -1,5 +1,4 @@
-﻿using FodanArtistry.Application;
-using FodanArtistry.Application.DTOs;
+﻿using FodanArtistry.Application.DTOs;
 using FodanArtistry.Application.DTOs.AccountModel;
 using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
@@ -16,7 +15,7 @@ namespace FodanArtistry.Web.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSender _emailsender;
 
         public AccountController(
             IAccountService accountService,
@@ -25,7 +24,7 @@ namespace FodanArtistry.Web.Controllers
         {
             _accountService = accountService;
             _userManager = userManager;
-            _emailSender = emailSender;
+            _emailsender = emailSender;
         }
 
 
@@ -45,12 +44,14 @@ namespace FodanArtistry.Web.Controllers
                 var user = await _userManager.FindByEmailAsync(dto.Email);
                 if (user != null)
                 {
+                    // Generate verification code
                     var code = new Random().Next(100000, 999999).ToString();
                     user.EmailVerificationCode = code;
                     user.CodeExpiryTime = DateTime.UtcNow.AddMinutes(10);
                     await _userManager.UpdateAsync(user);
 
-                    await _emailSender.SendEmailAsync(
+                    // Send email with the code
+                    await _emailsender.SendEmailAsync(
                         user.Email,
                         "Verify your email",
                         $@"
@@ -105,7 +106,7 @@ namespace FodanArtistry.Web.Controllers
             await _userManager.UpdateAsync(user);
 
             TempData["SuccessMessage"] = "Email verified! You can now log in.";
-            return RedirectToAction("Login");
+            return RedirectToAction("Subscribe" , "Payment");
         }
 
 
