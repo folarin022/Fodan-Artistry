@@ -17,6 +17,8 @@ namespace FodanArtistry.Application.Interfaces
 
         Task<IEnumerable<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default);
         Task<bool> AssignRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
+        Task<bool> ForgotPasswordAsync(string email, string resetLink, CancellationToken cancellationToken = default);
+        Task<bool> ResetPasswordAsync(string userId, string token, string newPassword, CancellationToken cancellationToken = default);
     }
 }
         

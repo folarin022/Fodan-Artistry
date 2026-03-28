@@ -2,6 +2,7 @@
 using FodanArtistry.Application.Interfaces;
 using FodanArtistry.Domain.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FodanArtistry.Application.Services
@@ -11,15 +12,18 @@ namespace FodanArtistry.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmailSender _emailsender;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _emailsender = emailSender;
         }
 
         public async Task<AuthResultDto> RegisterAsync(RegisterDto registerDto, CancellationToken cancellationToken = default)
@@ -44,7 +48,8 @@ namespace FodanArtistry.Application.Services
                     LastName = registerDto.LastName,
                     PhoneNumber = registerDto.PhoneNumber,
                     Gender = registerDto.Gender,
-                    EmailConfirmed = false 
+                    EmailConfirmed = false,
+                    IsArtistRequested = registerDto.IsArtistRequested,
                 };
                 if (!IsValidEmail(registerDto.Email))
                 {
@@ -265,6 +270,43 @@ namespace FodanArtistry.Application.Services
 
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
+        }
+
+        public async Task<bool> ForgotPasswordAsync(string email, string resetLink, CancellationToken cancellationToken = default)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+                return false; // Don't reveal that the user doesn't exist
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var callbackUrl = $"{resetLink}?userId={user.Id}&token={Uri.EscapeDataString(token)}";
+
+            await _emailsender.SendEmailAsync(
+                user.Email,
+                "Reset your password - Fodan Artistry",
+                $@"
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+            <h2>Hello {user.FirstName},</h2>
+            <p>We received a request to reset your password. Click the button below:</p>
+            <div style='text-align: center; margin: 30px 0;'>
+                <a href='{callbackUrl}' style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;'>Reset Password</a>
+            </div>
+            <p>If you didn't request this, please ignore this email.</p>
+            <p>This link expires in 24 hours.</p>
+        </div>"
+            );
+
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(string userId, string token, string newPassword, CancellationToken cancellationToken = default)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            return result.Succeeded;
         }
     }
 }

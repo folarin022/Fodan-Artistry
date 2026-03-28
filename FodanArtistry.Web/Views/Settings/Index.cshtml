@@ -1,0 +1,253 @@
+﻿@model FodanArtistry.Application.DTOs.AccountModel.SettingsViewModel
+@{
+    ViewData["Title"] = "Account Settings";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        @if (!string.IsNullOrEmpty(Model.Profile.ProfilePicture))
+                        {
+                            <img src="@Model.Profile.ProfilePicture" class="rounded-circle" width="100" height="100" style="object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                 style="width: 100px; height: 100px; font-size: 2.5rem; font-weight: 600;">
+                                @Model.Profile.FirstName?.Substring(0, 1)@Model.Profile.LastName?.Substring(0, 1)
+                            </div>
+                        }
+                    </div>
+                    <h5 class="fw-bold mb-1">@Model.Profile.FirstName @Model.Profile.LastName</h5>
+                    <p class="text-muted small">@Model.Profile.Email</p>
+                    <div class="mt-3">
+                        @foreach (var role in Model.Profile.Roles)
+                        {
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill me-1">@role</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Profile Section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-person me-2 text-primary"></i>Profile Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="UpdateProfile" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">First Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-person"></i></span>
+                                    <input type="text" name="FirstName" class="form-control border-0 bg-light" value="@Model.Profile.FirstName" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Last Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-person"></i></span>
+                                    <input type="text" name="LastName" class="form-control border-0 bg-light" value="@Model.Profile.LastName" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control border-0 bg-light" value="@Model.Profile.Email" disabled readonly />
+                                </div>
+                                <small class="text-muted">Email cannot be changed</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-telephone"></i></span>
+                                    <input type="text" name="PhoneNumber" class="form-control border-0 bg-light" value="@Model.Profile.PhoneNumber" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Profile Picture Section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-image me-2 text-primary"></i>Profile Picture
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="mb-0">Upload a new profile picture. Maximum file size: 5MB</p>
+                            <small class="text-muted">Supported formats: JPG, PNG, GIF</small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <form asp-action="UploadProfilePicture" method="post" enctype="multipart/form-data" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="file" name="profilePicture" id="profilePictureInput" class="d-none" accept="image/*" />
+                                <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="uploadBtn">
+                                    <i class="bi bi-cloud-upload me-2"></i>Upload
+                                </button>
+                                @if (!string.IsNullOrEmpty(Model.Profile.ProfilePicture))
+                                {
+                                    <button type="submit" formaction="@Url.Action("RemoveProfilePicture")" class="btn btn-outline-danger rounded-pill px-4 ms-2">
+                                        <i class="bi bi-trash me-2"></i>Remove
+                                    </button>
+                                }
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-key me-2 text-primary"></i>Change Password
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="ChangePassword" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-semibold">Current Password</label>
+                                <input type="password" name="CurrentPassword" class="form-control border-0 bg-light" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">New Password</label>
+                                <input type="password" name="NewPassword" class="form-control border-0 bg-light" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Confirm New Password</label>
+                                <input type="password" name="ConfirmNewPassword" class="form-control border-0 bg-light" required />
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-warning rounded-pill px-4">
+                                <i class="bi bi-shield-lock me-2"></i>Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card border-0 shadow-sm border-danger">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0 text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Danger Zone
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="fw-semibold mb-1">Delete Account</p>
+                            <p class="text-muted small mb-0">Once you delete your account, there is no going back. All your data will be permanently removed.</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button type="button" class="btn btn-outline-danger rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                <i class="bi bi-trash me-2"></i>Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-trash-fill display-1 text-danger mb-4"></i>
+                <h5 class="fw-bold mb-3">Are you absolutely sure?</h5>
+                <p class="text-muted mb-4">This action cannot be undone. Your account and all associated data will be permanently deleted.</p>
+                <form asp-action="DeleteAccount" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger btn-lg rounded-pill px-5">
+                        <i class="bi bi-check-lg me-2"></i>Yes, Delete My Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Profile picture upload
+        document.getElementById('uploadBtn').addEventListener('click', function() {
+            document.getElementById('profilePictureInput').click();
+        });
+
+        document.getElementById('profilePictureInput').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                this.form.submit();
+            }
+        });
+
+        // Auto-dismiss alerts
+        setTimeout(() => {
+            $('.alert').fadeOut(500, function() { $(this).remove(); });
+        }, 5000);
+    </script>
+}
+
+<style>
+    .card {
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    }
+    .input-group-text {
+        border-radius: 12px 0 0 12px;
+    }
+    .form-control {
+        border-radius: 0 12px 12px 0;
+    }
+    .btn {
+        transition: all 0.3s;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    @@media (max-width: 768px) {
+        .col-md-4.text-end {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+    }
+</style>

@@ -491,6 +491,15 @@
     </div>
 }
         </div>
+
+         <!-- Settings Dropdown -->
+           <div class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" 
+       asp-controller="Settings" asp-action="Index">
+        <i class="bi bi-gear-fill"></i>
+        <span>Settings</span>
+    </a>
+</div>
         
         <div class="p-3 mt-auto">
             @if (User.Identity?.IsAuthenticated == true)
@@ -562,6 +571,7 @@
                 }
             </div>
         </div>
+       
 
         <!-- Toast Notifications -->
         <div class="toast-container">

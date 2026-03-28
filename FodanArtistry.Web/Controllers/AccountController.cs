@@ -106,7 +106,7 @@ namespace FodanArtistry.Web.Controllers
             await _userManager.UpdateAsync(user);
 
             TempData["SuccessMessage"] = "Email verified! You can now log in.";
-            return RedirectToAction("Subscribe" , "Payment");
+            return RedirectToAction("Subscribe", "Payment", new { userId = user.Id });
         }
 
 
@@ -192,5 +192,54 @@ namespace FodanArtistry.Web.Controllers
         }
 
         public IActionResult AccessDenied() => View();
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var resetLink = Url.Action("ResetPassword", "Account", null, Request.Scheme);
+            var result = await _accountService.ForgotPasswordAsync(dto.Email, resetLink);
+
+            TempData["SuccessMessage"] = "If your email is registered, you will receive a password reset link.";
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+                return RedirectToAction("Login");
+
+            var model = new ResetPasswordDto { UserId = userId, Token = token };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var result = await _accountService.ResetPasswordAsync(dto.UserId, dto.Token, dto.NewPassword);
+
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Password reset successfully! Please log in.";
+                return RedirectToAction("Login");
+            }
+
+            ModelState.AddModelError("", "Invalid or expired token.");
+            return View(dto);
+        }
     }
 }

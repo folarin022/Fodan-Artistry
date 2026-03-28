@@ -14,5 +14,6 @@ namespace FodanArtistry.Domain.Data
         public ICollection<Artwork>? Artworks { get; set; }
         public ICollection<Order>? Orders { get; set; }
         public ICollection<Favourite>? Favorites { get; set; }
+        public string? ProfilePicture { get; set; }
     }
 }
